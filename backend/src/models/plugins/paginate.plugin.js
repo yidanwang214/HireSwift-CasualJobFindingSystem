@@ -56,7 +56,7 @@ const paginate = (schema) => {
       const [totalResults, results] = values;
       const totalPages = Math.ceil(totalResults / limit);
       const result = {
-        results,
+        results: results.map((r) => r.toJSON()),
         page,
         limit,
         totalPages,
