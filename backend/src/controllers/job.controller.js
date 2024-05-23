@@ -1,19 +1,31 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { findJobById, deleteJobById, addNewJob, findJobs, updateJobById } = require('../services/job.service');
+const categories = require('../models/categories.mock');
 
 const listJob = catchAsync(async (req, res) => {
   const { query, page, limit } = req.body;
   const uid = req.user._id;
 
   const ret = await findJobs(uid, query, { page, limit });
+  if (ret && ret.results && ret.results.length > 0) {
+    ret.results.forEach((item) => {
+      item.category = categories.get(item.categoryId ?? 0);
+    });
+  }
+  console.log(ret);
   res.send(ret);
 });
 
 const getJobById = catchAsync(async (req, res) => {
   const { jobId } = req.params;
   const job = await findJobById(jobId);
-  res.send(job);
+  if (!job) {
+    res.status(404).send('Not found');
+  } else {
+    job.category = categories.get(job.categoryId ?? 0);
+    res.send(job);
+  }
 });
 
 const deleteJob = catchAsync(async (req, res) => {

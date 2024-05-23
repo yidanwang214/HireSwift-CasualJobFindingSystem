@@ -3,7 +3,9 @@ const JobModel = require('../models/job.model');
 const ApiError = require('../utils/ApiError');
 
 const findJobById = async (jobId) => {
-  return JobModel.findById(jobId);
+  return JobModel.findById(jobId)
+    .exec()
+    .then((job) => job.toJSON());
 };
 
 const addNewJob = async (jobInfo, userId) => {
@@ -38,7 +40,7 @@ const deleteJobById = async (jobId, user) => {
 };
 
 const findJobs = async (userId, searchInfo = {}, options = { page: 1, limit: 10 }) => {
-  const { search, tag, status, salary, location, updatedStart, updatedEnd } = searchInfo;
+  const { search, tag, status, salary, location, updatedStart, updatedEnd, categoryId } = searchInfo;
   const filter = {};
   if (search) {
     filter.$text = { $search: search };
@@ -58,6 +60,9 @@ const findJobs = async (userId, searchInfo = {}, options = { page: 1, limit: 10 
   }
   if (userId) {
     filter.ownerId = userId;
+  }
+  if (categoryId) {
+    filter.categoryId = categoryId;
   }
   const dateFilter = {};
   if (updatedStart) {

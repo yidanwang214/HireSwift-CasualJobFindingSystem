@@ -13,6 +13,10 @@ const jobSchema = mongoose.Schema(
       required: false,
       trim: true,
     },
+    categoryId: {
+      type: 'Number',
+      default: 0,
+    },
     description: {
       type: 'String',
       required: true,

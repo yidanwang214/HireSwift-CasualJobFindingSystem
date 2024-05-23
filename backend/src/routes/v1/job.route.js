@@ -17,6 +17,7 @@ const jobDetails = {
   title: Joi.string().required(),
   tags: Joi.array().items(Joi.string()),
   description: Joi.string().required(),
+  categoryId: Joi.number().default(0),
   // status: Joi.string().valid('Opening', 'Closed', 'In progress', 'Finished').required(),
   salaryPerHour: Joi.string()
     .required()
@@ -51,6 +52,7 @@ const jobSearchVad = {
       location: Joi.string(),
       updatedStart: Joi.number(),
       updatedEnd: Joi.number(),
+      categoryId: Joi.number(),
     }),
     page: Joi.number().positive(),
     limit: Joi.number().positive().less(100),
