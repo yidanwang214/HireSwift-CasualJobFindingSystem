@@ -8,6 +8,11 @@ const ratingModel = mongoose.Schema(
       required: true,
       ref: 'User',
     },
+    recipientId: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
     applicationId: {
       type: mongoose.Types.ObjectId,
       required: true,
@@ -33,7 +38,7 @@ ratingModel.plugin(toJSON);
 ratingModel.plugin(paginate);
 
 ratingModel.index({ comment: 'text' });
-ratingModel.index({ raterId: 1 });
+ratingModel.index({ raterId: 1, applicationId: 1, recipientId: 1 });
 
 const RatingModel = mongoose.model('Rating', ratingModel);
 
