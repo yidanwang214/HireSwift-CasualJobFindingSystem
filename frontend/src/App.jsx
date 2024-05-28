@@ -1,7 +1,7 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import Home from './page/Home';
-import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer';
+import Header from './components/Header/Header'
 import { Route, Routes } from 'react-router-dom'
 import Register from './page/Register';
 import JobList from './page/JobList'; 

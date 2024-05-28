@@ -24,7 +24,7 @@ const TrustedBy = () => {
       <Typography variant="h4" component="h2" gutterBottom sx={{ mb: 4 }}> {/* Added margin-bottom */}
         Trusted By
       </Typography>
-      <Grid container spacing={7} justifyContent="center">
+      <Grid container spacing={5} justifyContent="center">
         {logos.map((logo, index) => (
           <Grid item xs={6} sm={4} md={3} key={index} display="flex" justifyContent="center" alignItems="center">
             <img src={logo} alt={`logo${index + 1}`} style={{ maxWidth: '70px', margin: '10px' }} />
