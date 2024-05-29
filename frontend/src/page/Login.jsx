@@ -8,7 +8,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Container, Paper, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginFailure, loginStart } from "../redux/userSlice";
+import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 
 const USER_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -16,8 +16,8 @@ const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const Login = () => {
   const emailRef = useRef();
   const pwdRef = useRef();
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [email, setEmail] = useState("");
   const [validName, setValidName] = useState(false);
@@ -82,7 +82,6 @@ const Login = () => {
     setIsPwdTyped(true);
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validName || !pwdValidation) {
@@ -91,6 +90,7 @@ const Login = () => {
       setPwdFocus(true);
       setIsPwdTyped(true);
     }
+    dispatch(loginStart());
     if (!validName) {
       emailRef.current.focus();
       return;
@@ -98,26 +98,29 @@ const Login = () => {
       pwdRef.current.focus();
       return;
     }
-    try{
-    const response = await fetch("http://localhost:3000/v1/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      alert("Welcome " + data.user.name)
-      setEmail('')
-      setPassword('')
-      setIsNameTyped(false)
-      setIsPwdTyped(false)
-      navigate('/myprofile')
-    } else {
-      setErrMsg(data.message || "An unexpected error occurred");
-    }}catch(error){
+    try {
+      const response = await fetch("http://localhost:3000/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
         console.log('====================================');
-        console.log('this is error');
+        console.log(data);
         console.log('====================================');
+        dispatch(loginSuccess(data.user));
+        setEmail("");
+        setPassword("");
+        setIsNameTyped(false);
+        setIsPwdTyped(false);
+        navigate("/myprofile");
+      } else {
+        dispatch(loginFailure(data.message || "An unexpected error occurred"));
+      }
+    } catch (error) {
+      dispatch(loginFailure("Network error"));
+
     }
   };
 
