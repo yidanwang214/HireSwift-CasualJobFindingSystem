@@ -5,6 +5,8 @@ import Header from './components/Header/Header'
 import { Route, Routes } from 'react-router-dom'
 import Register from './page/Register';
 import JobList from './page/JobList'; 
+import JobDescription from './page/JobDescription';
+import './index.css';
 
 function App() {
 
@@ -17,6 +19,7 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='signup' element={<Register/>}/>
         <Route path='/jobs' element={<JobList />} /> {/* Static route for JobList */}
+        <Route path='/jobdescription' element={<JobDescription/>}/>
       </Routes>
       <Footer />
     </>
