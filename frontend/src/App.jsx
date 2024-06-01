@@ -19,8 +19,8 @@ function App() {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='signup' element={<Register/>}/>
-          <Route path='/jobs' element={<JobList />} /> {/* Static route for JobList */}
-          <Route path='/jobdescription' element={<JobDescription/>}/>
+          <Route path='/joblist' element={<JobList />} /> {/* Static route for JobList */}
+          <Route path='/jobdescription/:jobid' element={<JobDescription/>}/>
         </Routes>
       </div>
       <Footer />
