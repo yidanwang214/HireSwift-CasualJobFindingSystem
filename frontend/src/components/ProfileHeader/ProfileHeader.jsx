@@ -7,7 +7,6 @@ import {
   Avatar,
   Box,
 } from "@mui/material";
-import { Favorite, WorkOutline, AccountCircle } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 
 const ProfileHeader = () => {
@@ -20,7 +19,7 @@ const ProfileHeader = () => {
         <Avatar sx={{ width: 56, height: 56 }} src="" />
         <div>
           <Typography variant="h6">{user.name} </Typography>
-          <Typography variant="subtitle1">Data Analyst</Typography>
+          <Typography variant="subtitle1">{user.role}</Typography>
         </div>
       </Toolbar>
     </Box>

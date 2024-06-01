@@ -106,10 +106,12 @@ const Login = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log('====================================');
-        console.log(data);
-        console.log('====================================');
-        dispatch(loginSuccess(data.user));
+        const { user, tokens } = data;
+        const { access, refresh } = tokens;
+        localStorage.setItem("accessToken", access.token);
+        localStorage.setItem("refreshToken", refresh.token);
+        localStorage.setItem("user", JSON.stringify(user));
+        dispatch(loginSuccess(data));
         setEmail("");
         setPassword("");
         setIsNameTyped(false);
@@ -120,7 +122,6 @@ const Login = () => {
       }
     } catch (error) {
       dispatch(loginFailure("Network error"));
-
     }
   };
 

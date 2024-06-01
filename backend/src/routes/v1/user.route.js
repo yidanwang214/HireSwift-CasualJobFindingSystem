@@ -17,6 +17,10 @@ router
   .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
   .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
 
+router
+  .route('/switch-role')
+  .patch(auth('switchRoles'), validate(userValidation.switchRole), userController.switchRole);
+
 module.exports = router;
 
 /**

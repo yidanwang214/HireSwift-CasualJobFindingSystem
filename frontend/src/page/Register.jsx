@@ -11,22 +11,31 @@ import {
   FormControlLabel,
   Paper,
   TextField,
+  FormLabel,
+  RadioGroup,
+  Radio,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/authSlice";
+import { loginFailure, loginSuccess } from "../redux/userSlice";
 
-const USER_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
-const NAME_REGEX = /^(?!\d)[a-zA-Z\d!@#$%^&*()_+{}\[\]:;<>,.?~`\-='"]{6,16}$/
-const lowercaseRegex = /[a-z]/
-const uppercaseRegex = /[A-Z]/
-const numberRegex = /[0-9]/
-const specialCharRegex = /[!@#$%]/
-const lengthRegex = /.{8,24}/
+const USER_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
+const NAME_REGEX = /^(?!\d)[a-zA-Z\d!@#$%^&*()_+{}\[\]:;<>,.?~`\-='"]{6,16}$/;
+const lowercaseRegex = /[a-z]/;
+const uppercaseRegex = /[A-Z]/;
+const numberRegex = /[0-9]/;
+const specialCharRegex = /[!@#$%]/;
+const lengthRegex = /.{8,24}/;
 
 const Register = () => {
   const userRef = useRef();
   const pwdRef = useRef();
   const matchPwdRef = useRef();
   const nameRef = useRef();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [name, setName] = useState("");
   const [validName, setValidName] = useState(false);
@@ -130,6 +139,17 @@ const Register = () => {
     setPrivacyChecked(e.target.checked);
   };
 
+  const [role, setRole] = useState("");
+  const [isRoleSelected, setIsRoleSelected] = useState(false);
+
+  const handleRole = (e) => {
+    setRole(e.target.value);
+  };
+
+  useEffect(() => {
+    setIsRoleSelected(!!role);
+  }, [role]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -137,7 +157,8 @@ const Register = () => {
       !validEmail ||
       !pwdValidation ||
       !isMatch ||
-      !privacyChecked
+      !privacyChecked ||
+      !role
     ) {
       setNameFocus(true);
       setIsEmailTyped(true);
@@ -161,29 +182,38 @@ const Register = () => {
     } else if (!validName) {
       userRef.current.focus();
       return;
+    } else if (!role) {
+      setIsRoleSelected(false);
+      return;
     }
     setIsNocheckSbumit(false);
 
     const response = await fetch("http://localhost:3000/v1/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, name, role }),
     });
     const data = await response.json();
+
     if (response.ok) {
-      alert("Sign up successful " + data.user.name)
-      setEmail('')
-      setName('')
-      setPassword('')
-      setMatchPwd('')
-      setPrivacyChecked(false)
-      setIsNameTyped(false)
-      setIsEmailTyped(false)
-      setIsMatchTyped(false)
-      setIsPwdTyped(false)
+      alert("Sign up successful " + data.user.name);
+      const loginResponse = await fetch("http://localhost:3000/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({email, password}),
+      });
+      const loginData = await loginResponse.json();
+      if (loginResponse.ok) {
+        dispatch(loginSuccess( loginData.user ));
+        navigate("/myprofile");
+      }else{
+        setErrMsg(loginData.message || "Login failed after registration");
+        dispatch(loginFailure(loginData.message || "Login failed after registration"))
+      }
     } else {
       setErrMsg(data.message || "An unexpected error occurred");
-    }
+      dispatch(loginFailure(data.message || "An unexpected error occurred"));
+    } 
   };
 
   return (
@@ -412,6 +442,38 @@ const Register = () => {
               sx={{ fontSize: "small", padding: "5px", color: "red" }}
             >
               Password is required.
+            </Typography>
+          )}
+
+          <FormLabel sx={{}}>Choose your role</FormLabel>
+          <RadioGroup
+            aria-label="options"
+            name="options"
+            value={role}
+            onChange={handleRole}
+            row
+          >
+            <FormControlLabel
+              value="employer"
+              control={<Radio />}
+              label="Employer"
+            />
+            <FormControlLabel
+              value="employee"
+              control={<Radio />}
+              label="Employee"
+            />
+          </RadioGroup>
+          {!isRoleSelected && isNocheckSubmit && (
+            <Typography
+              sx={{
+                fontSize: "small",
+                padding: "5px",
+                margin: "0px",
+                color: "red",
+              }}
+            >
+              You must choose your role
             </Typography>
           )}
           <FormControlLabel
