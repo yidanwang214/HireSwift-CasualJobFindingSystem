@@ -106,8 +106,31 @@ const jobs = [
     //     "photo": "",
     //   },
   ]
+const reviews = [
+    {
+        id: 1,
+        pros: ['good pay', 'good manager'],
+        cons: ['long commute'],
+        rating: 4.5
+    },
+    {
+        id: 2,
+        pros: ['good staff meal'],
+        cons: ['low pay rate'],
+        rating: 4.2
+    },
+
+]
 
 const JobDescription = () => {
+    const copyUrlToClipboard = () => {
+        const currentUrl = window.location.href;
+        navigator.clipboard.writeText(currentUrl).then(() => {
+            alert("URL successfully copied to clipboard. Send it to your friends now!");
+        }).catch(err => {
+            console.error("Failed to copy: ", err);
+        })
+    }
     return (
         <div id='jobDescription' className='flex flex-row mt-5 font-sans'>
             <div id='jobDetails' className='basis-2/3 mx-10'>
@@ -168,12 +191,34 @@ const JobDescription = () => {
                         item.content
                     ))}
                 </div>
+                <div id='review' className='mt-10 text-justify'>
+                    <div className='text-lg font-semibold border-b border-b-zinc-600'>Review</div>
+                    {!reviews ? (
+                        <p>No reviews yet. Be the first to rate the employer!</p>
+                    ) : (
+                        reviews.map((item) => (
+                            <div id={item.id} className='border-b border-b-zinc-300 mt-2'>
+                                Rating: {item.rating}
+                                <div className=''>
+                                    Pros: {item.pros.map((item) => (
+                                        <div className='ml-5'>- {item}</div>
+                                    ))}
+                                </div>
+                                <div className=''>
+                                    Cons: {item.cons.map((item) => (
+                                        <div className='ml-5 mb-2'>- {item}</div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
             <div id='apply' className='basis-1/3 mx-10 rounded-md border-2 border-slate-400 h-3/4 items'>
                 <div className='p-2'>
                 <Stack direction="column" spacing={2}>
                     <Button variant="contained">Apply</Button>
-                    <Button variant="contained" href="#contained-buttons">
+                    <Button variant="contained" onClick={copyUrlToClipboard}>
                         Refer to my friend
                     </Button>
                 </Stack>
