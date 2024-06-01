@@ -7,8 +7,7 @@ import { Link } from 'react-router-dom';
 import logo from '../../assets/logo-black.png';
 
 //Data to be collected from backend
-const pages = ["Get Premium", "Explore", "Become a Seller", "Sign in"];
-const settings = ["Profile", "Switch Role", "Logout"];
+const pages = ['Find talent', 'Find job', 'Why HireSwift', 'Enterprise', 'Sign in'];
 const explore = [
     { title: 'Discover', content: 'Inspiring projects made on our platform' },
     { title: 'Community', content: 'Connect with our team and community' },
@@ -68,17 +67,6 @@ function ResponsiveAppBar() {
             setAnchorElPremiumMenu(event.currentTarget);
         }
     };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  useEffect(() => {
-    setIsHome(location.pathname === "/");
-  }, [location]);
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
