@@ -124,7 +124,7 @@ const Login = () => {
 
   return (
     <Container maxWidth="md">
-      <Paper elevation={6}>
+      <Paper elevation={3} sx={{ padding: "12px 12px", borderRadius: '12px' }}>
         <Typography component="h1" variant="h5" align="center">
           Log In
         </Typography>

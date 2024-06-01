@@ -20,12 +20,15 @@ client.interceptors.request.use(
 
 client.interceptors.response.use(
   (resp) => {
-    if (resp.status === 401 && !location.pathname.startsWith("/login")) {
-      location.href = "/login";
-    }
     return resp;
   },
   (error) => {
+    if (error.response?.status === 401 && !location.pathname.startsWith("/login")) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      localStorage.removeItem("refreshToken");
+      location.href = "/login";
+    }
     return Promise.reject(error);
   }
 );

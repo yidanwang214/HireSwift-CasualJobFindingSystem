@@ -188,37 +188,46 @@ const Register = () => {
     }
     setIsNocheckSbumit(false);
 
-    const response = await fetch("http://localhost:3000/v1/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name, role }),
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("Sign up successful " + data.user.name);
-      const loginResponse = await fetch("http://localhost:3000/v1/auth/login", {
+    try {
+      const response = await fetch("http://localhost:3000/v1/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({email, password}),
+        body: JSON.stringify({ email, password, name, role }),
       });
-      const loginData = await loginResponse.json();
-      if (loginResponse.ok) {
-        dispatch(loginSuccess( loginData.user ));
-        navigate("/myprofile");
-      }else{
-        setErrMsg(loginData.message || "Login failed after registration");
-        dispatch(loginFailure(loginData.message || "Login failed after registration"))
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Sign up successful " + data.user.name);
+        const loginResponse = await fetch(
+          "http://localhost:3000/v1/auth/login",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          }
+        );
+        const loginData = await loginResponse.json();
+        if (loginResponse.ok) {
+          dispatch(loginSuccess(loginData));
+          navigate("/myprofile");
+        } else {
+          setErrMsg(loginData.message || "Login failed after registration");
+          dispatch(
+            loginFailure(loginData.message || "Login failed after registration")
+          );
+        }
+      } else {
+        setErrMsg(data.message || "An unexpected error occurred");
+        dispatch(loginFailure(data.message || "An unexpected error occurred"));
       }
-    } else {
-      setErrMsg(data.message || "An unexpected error occurred");
-      dispatch(loginFailure(data.message || "An unexpected error occurred"));
-    } 
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
     <Container maxWidth="md">
-      <Paper elevation={6}>
+      <Paper elevation={6} sx={{ padding: "12px 12px", borderRadius: '12px' }}>
         <Typography component="h1" variant="h5" align="center">
           Sign Up
         </Typography>

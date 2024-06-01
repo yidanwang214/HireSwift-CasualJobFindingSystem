@@ -14,7 +14,8 @@ import JobDescription from './page/JobDescription';
 import './index.css';
 
 function App() {
-
+  const accessToken = useSelector(state => state.user.accessToken);
+  const isAuthenticate = !!accessToken;
 
   return (
     <>

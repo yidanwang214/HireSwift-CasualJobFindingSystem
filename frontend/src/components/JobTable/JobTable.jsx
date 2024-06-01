@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -23,6 +23,8 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import Chip from "@mui/material/Chip";
 import { Button } from "@mui/material";
 import "./JobTable.css";
+import client from "../../utils/request";
+import axios from "axios";
 
 function createData(id, pay, jobName, startDate, endDate, employer, status) {
   return {
@@ -35,127 +37,6 @@ function createData(id, pay, jobName, startDate, endDate, employer, status) {
     status,
   };
 }
-
-const rows = [
-  createData(
-    1,
-    100,
-    "Barista",
-    new Date(2024, 2, 10),
-    new Date(2024, 2, 17),
-    "a",
-    "active"
-  ),
-  createData(
-    2,
-    100,
-    "Kitchenhands",
-    new Date(2024, 2, 17),
-    new Date(2024, 2, 24),
-    "b",
-    "finished"
-  ),
-  createData(
-    3,
-    200,
-    "Cleaner",
-    new Date(2024, 2, 24),
-    new Date(2024, 2, 31),
-    "c",
-    "rejected"
-  ),
-  createData(
-    4,
-    300,
-    "Sous Chef",
-    new Date(2024, 2, 31),
-    new Date(2024, 3, 7),
-    "d",
-    "active"
-  ),
-  createData(
-    5,
-    150,
-    "Community Worker",
-    new Date(2024, 3, 7),
-    new Date(2024, 3, 14),
-    "e",
-    "finished"
-  ),
-  createData(
-    6,
-    80,
-    "Bartender",
-    new Date(2024, 3, 14),
-    new Date(2024, 3, 21),
-    "f",
-    "rejected"
-  ),
-  createData(
-    7,
-    300,
-    "Accountant",
-    new Date(2024, 3, 21),
-    new Date(2024, 3, 28),
-    "g",
-    "active"
-  ),
-  createData(
-    8,
-    500,
-    "Web Designer",
-    new Date(2024, 3, 28),
-    new Date(2024, 4, 5),
-    "h",
-    "finished"
-  ),
-  createData(
-    9,
-    200,
-    "Copy Writer",
-    new Date(2024, 4, 5),
-    new Date(2024, 4, 12),
-    "i",
-    "rejected"
-  ),
-  createData(
-    10,
-    200,
-    "Guitar Player",
-    new Date(2024, 4, 12),
-    new Date(2024, 4, 19),
-    "j",
-    "active"
-  ),
-  createData(
-    11,
-    150,
-    "DJ",
-    new Date(2024, 4, 19),
-    new Date(2024, 4, 26),
-    "k",
-    "finished"
-  ),
-  createData(
-    12,
-    100,
-    "Image Designer",
-    new Date(2024, 4, 26),
-    new Date(2024, 5, 2),
-    "l",
-    "rejected"
-  ),
-  createData(
-    13,
-    1000,
-    "Builder",
-
-    new Date(2024, 5, 2),
-    new Date(2024, 5, 9),
-    "m",
-    "active"
-  ),
-];
 
 //create a descending comparator to compare numeric or string values
 function descendingComparator(a, b, orderBy) {
@@ -393,18 +274,19 @@ const JobTable = () => {
   const [orderBy, setOrderBy] = useState("id");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
-  const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [filteredRows, setFilteredRows] = useState(rows);
-  const [rowsLeft, setRowsLeft] = useState(rows);
+  // const [filteredRows, setFilteredRows] = useState(rows);
+  const [rowsLeft, setRowsLeft] = useState([]);
   const [isFiltered, setIsFiltered] = useState("all");
+  const [visibleRows, setVisibleRows] = useState([]);
+  const [totalRows, setTotalRows] = useState(0);
 
   const handleStatusFilter = (status) => {
     if (status === "all") {
-      setFilteredRows(rowsLeft);
+      // setFilteredRows(rowsLeft);
     } else {
       const newRows = rowsLeft.filter((row) => row.status === status);
-      setFilteredRows(newRows);
+      // setFilteredRows(newRows);
     }
     setPage(0);
     setIsFiltered(status);
@@ -418,12 +300,44 @@ const JobTable = () => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
+      const newSelected = visibleRows.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
     setSelected([]);
   };
+
+  const fetchMyJobList = useCallback(
+    (ac) => {
+      client
+        .post(
+          "/jobs/list",
+          { page: page + 1, limit: rowsPerPage },
+          { signal: ac?.signal }
+        )
+        .then((resp) => {
+          const { results, totalResults } = resp.data;
+          setVisibleRows(results);
+          setTotalRows(totalResults);
+        })
+        .catch((e) => {
+          if (axios.isCancel(e)) {
+            return;
+          }
+          console.error(e);
+        });
+    },
+    [page, rowsPerPage]
+  );
+
+  useEffect(() => {
+    const ac = new AbortController();
+    fetchMyJobList(ac);
+
+    return () => {
+      ac.abort();
+    };
+  }, [fetchMyJobList]);
 
   const handleClick = (event, id) => {
     const selectedIndex = selected.indexOf(id);
@@ -453,44 +367,35 @@ const JobTable = () => {
     setPage(0);
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
-
   const isSelected = (id) => {
     return selected.indexOf(id) !== -1;
   };
 
-  const handleDelete = () => {
-    const newRows = rowsLeft.filter((item) => !selected.includes(item.id));
-    const newFilteredRows = filteredRows.filter((item) => !selected.includes(item.id));
-    console.log("====================================");
-    console.log(selected);
-    console.log("====================================");
-    console.log("====================================");
-    console.log(visibleRows);
-    console.log("====================================");
-    setRowsLeft(newRows);
-    setFilteredRows(newFilteredRows)
-    setSelected([])
-  };
+  // const handleDelete = () => {
+  //   const newRows = rowsLeft.filter((item) => !selected.includes(item.id));
+  //   const newFilteredRows = filteredRows.filter(
+  //     (item) => !selected.includes(item.id)
+  //   );
+  //   console.log("====================================");
+  //   console.log(selected);
+  //   console.log("====================================");
+  //   console.log("====================================");
+  //   console.log(visibleRows);
+  //   console.log("====================================");
+  //   setRowsLeft(newRows);
+  //   setFilteredRows(newFilteredRows);
+  //   setSelected([]);
+  // };
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  const visibleRows = useMemo(() => {
-    return stableSort(filteredRows, getComparator(order, orderBy)).slice(
-      page * rowsPerPage,
-      (page + 1) * rowsPerPage
-    );
-  }, [filteredRows, page, order, orderBy, rowsPerPage]);
-
   return (
     <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2 }}>
+      <Paper sx={{ width: "100%", mb: 2, padding: "16px 32px" }}>
         <EnhancedTableToolbar
           numSelected={selected.length}
-          onDelete={handleDelete}
+          onDelete={() => {}}
         />
         <SelectToolbar
           onFilter={handleStatusFilter}
@@ -498,14 +403,14 @@ const JobTable = () => {
           rowsLeft={rowsLeft}
         />
         <TableContainer>
-          <Table sx={{ minWidth: 750 }} size={dense ? "small" : "medium"}>
+          <Table sx={{ minWidth: 750 }} size={"medium"}>
             <EnhancedTableHeader
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={filteredRows.length}
+              rowCount={totalRows}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
@@ -530,32 +435,34 @@ const JobTable = () => {
                       padding="none"
                       sx={{ width: "20%", padding: "8px 16px" }}
                     >
-                      {row.jobName}
+                      {row.title}
                     </TableCell>
                     <TableCell
                       align="left"
                       sx={{ width: "20%", padding: "8px 16px" }}
                     >
-                      ${row.pay}
+                      ${row.salaryStart} - ${row.salaryEnd}
                     </TableCell>
 
                     <TableCell
                       align="left"
                       sx={{ width: "20%", padding: "8px 16px" }}
                     >
-                      {row.startDate.toLocaleDateString()}
+                      {/* {row.startDate.toLocaleDateString()} */}
+                      {new Date(row.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell
                       align="left"
                       sx={{ width: "20%", padding: "8px 16px" }}
                     >
-                      {row.endDate.toLocaleDateString()}
+                      {/* {row.endDate.toLocaleDateString()} */}
+                      {new Date(row.updatedAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell
                       align="left"
                       sx={{ width: "20%", padding: "8px 16px" }}
                     >
-                      {row.employer}
+                      {row.ownerInfo?.name}
                     </TableCell>
                     <TableCell
                       align="left"
@@ -564,22 +471,25 @@ const JobTable = () => {
                       <Chip
                         label={row.status}
                         color={
-                          row.status === "active"
+                          // 'Opening', 'Closed', 'In progress', 'Finished'
+                          row.status === "In progress" ||
+                          row.status === "Opening"
                             ? "success"
-                            : row.status === "finished"
+                            : row.status === "Finished"
                             ? "primary"
                             : "error"
                         }
                         size="small"
                       />
                     </TableCell>
+                    {/* TODO: actions */}
                   </TableRow>
                 );
               })}
               {emptyRows > 0 && (
                 <TableRow
                   style={{
-                    height: (dense ? 33 : 53) * emptyRows,
+                    height: (53) * emptyRows,
                   }}
                 >
                   <TableCell colSpan={6} />
@@ -592,7 +502,7 @@ const JobTable = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={filteredRows.length}
+            count={totalRows}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -600,10 +510,6 @@ const JobTable = () => {
           />
         }
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      />
     </Box>
   );
 };
