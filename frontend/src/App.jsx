@@ -10,12 +10,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { initialiseUser } from "./redux/userSlice";
 
-
-
 function App() {
   const dispatch = useDispatch();
-  const accessToken = useSelector((state)=>state.user.accessToken)
-  const isAuthenticate = !!accessToken
+  const accessToken = useSelector((state) => state.user.accessToken);
+  const isAuthenticate = !!accessToken;
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
     const accessToken = localStorage.getItem("accessToken");
@@ -30,7 +28,6 @@ function App() {
     }
   }, [dispatch]);
 
-
   return (
     <>
       <CssBaseline />
@@ -43,9 +40,7 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route
           path="myprofile"
-          element={
-            isAuthenticate?<Profile/>:<Login/>
-          }
+          element={isAuthenticate ? <Profile /> : <Login />}
         />
       </Routes>
       <Footer />

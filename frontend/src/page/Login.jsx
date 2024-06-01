@@ -9,6 +9,7 @@ import { Container, Paper, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
+import client from "../utils/request";
 
 const USER_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -99,28 +100,24 @@ const Login = () => {
       return;
     }
     try {
-      const response = await fetch("http://localhost:3000/v1/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        const { user, tokens } = data;
-        const { access, refresh } = tokens;
-        localStorage.setItem("accessToken", access.token);
-        localStorage.setItem("refreshToken", refresh.token);
-        localStorage.setItem("user", JSON.stringify(user));
-        dispatch(loginSuccess(data));
-        setEmail("");
-        setPassword("");
-        setIsNameTyped(false);
-        setIsPwdTyped(false);
-        navigate("/myprofile");
-      } else {
-        dispatch(loginFailure(data.message || "An unexpected error occurred"));
-      }
+      const resp = await client.post("/auth/login", { email, password });
+      console.log(resp);
+      const { user, tokens } = resp.data;
+      const { access, refresh } = tokens;
+      localStorage.setItem("accessToken", access.token);
+      localStorage.setItem("refreshToken", refresh.token);
+      localStorage.setItem("user", JSON.stringify(user));
+      dispatch(loginSuccess(resp.data));
+      setEmail("");
+      setPassword("");
+      setIsNameTyped(false);
+      setIsPwdTyped(false);
+      navigate("/myprofile", { replace: true });
+      // } else {
+      //   dispatch(loginFailure(data.message || "An unexpected error occurred"));
+      // }
     } catch (error) {
+      console.error(error);
       dispatch(loginFailure("Network error"));
     }
   };

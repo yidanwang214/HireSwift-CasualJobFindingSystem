@@ -19,7 +19,10 @@ import InputBase from "@mui/material/InputBase";
 import ShortCutBar from "../ShortCutBar/ShortCutBar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import client from "../../utils/request";
+import { updateUserInfo } from "../../redux/userSlice";
+import Snackbar from "@mui/material/Snackbar";
 
 //Data to be collected from backend
 const pages = ["Get Premium", "Explore", "Become a Seller", "Sign in"];
@@ -55,11 +58,14 @@ function ResponsiveAppBar() {
   const [anchorElExploreMenu, setAnchorElElExploreMenu] = useState(null);
   const [anchorElPremiumMenu, setAnchorElPremiumMenu] = useState(null);
   const [isHome, setIsHome] = useState(true);
+  const [sbarOpen, setSBarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.user.userInfo);
   const role = userInfo?.role;
   const userId = userInfo?.id;
+  console.log("userINfo: ", userInfo);
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -82,28 +88,13 @@ function ResponsiveAppBar() {
   };
 
   const switchRole = async () => {
-    const token = localStorage.getItem("accessToken");
     try {
-      const response = await fetch(
-        "http://localhost:3000/v1/users/switch-role",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            userId: userId,
-            role: role !== "employee" ? "employee" : "employer",
-          }),
-        }
-      );
-      console.log(response);
-      if (!response.ok) {
-        throw new Error("Failed to switch role");
-      }
-      const data = await response.json();
-      console.log("Role switched successfully:", data);
+      const response = await client.patch("/users/switch-role", {
+        role: role === "employee" ? "employer" : "employee",
+      });
+      const data = response.data;
+      setSBarOpen(true);
+      dispatch(updateUserInfo(data));
     } catch (err) {
       console.error("Error switching role:", err);
     }
@@ -428,7 +419,9 @@ function ResponsiveAppBar() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="Remy Sharp">
+                  {(userInfo?.name ?? "A").charAt(0).toUpperCase()}
+                </Avatar>
               </IconButton>
             </Tooltip>
             <Menu
@@ -460,6 +453,15 @@ function ResponsiveAppBar() {
         </Toolbar>
       </AppBar>
       <ShortCutBar opacityFlag={searchDispay} />
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        message="User role updated successfully!"
+        open={sbarOpen}
+        autoHideDuration={3000}
+        onClose={() => {
+          setSBarOpen(false);
+        }}
+      />
     </>
   );
 }
