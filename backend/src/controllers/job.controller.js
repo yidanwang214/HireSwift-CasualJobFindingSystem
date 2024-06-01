@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { findJobById, deleteJobById, addNewJob, findJobs, updateJobById } = require('../services/job.service');
+const { getUserById } = require('../services/user.service');
 const categories = require('../models/categories.mock');
 
 const listJob = catchAsync(async (req, res) => {
@@ -9,9 +10,10 @@ const listJob = catchAsync(async (req, res) => {
 
   const ret = await findJobs(uid, query, { page, limit });
   if (ret && ret.results && ret.results.length > 0) {
-    ret.results.forEach((item) => {
+    for (let item of ret.results) {
+      item.ownerInfo = await getUserById(item.ownerId);
       item.category = categories.get(item.categoryId ?? 0);
-    });
+    }
   }
   console.log(ret);
   res.send(ret);

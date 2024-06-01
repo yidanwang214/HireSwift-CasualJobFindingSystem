@@ -33,6 +33,8 @@ app.use(compression());
 app.use(cors());
 app.options('*', cors());
 
+app.use(express.static('uploads', { dotfiles: 'deny', index: false }));
+
 // jwt authentication
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
