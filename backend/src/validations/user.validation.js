@@ -6,7 +6,7 @@ const createUser = {
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
     name: Joi.string().required(),
-    role: Joi.string().required().valid('employee', 'employer', 'admin'),
+    role: Joi.string().required().valid('employee', 'employer', 'admin').default('employee'),
   }),
 };
 
@@ -35,6 +35,7 @@ const updateUser = {
       email: Joi.string().email(),
       password: Joi.string().custom(password),
       name: Joi.string(),
+      role: Joi.string().valid('employer', 'employee', 'admin'),
     })
     .min(1),
 };
@@ -45,10 +46,17 @@ const deleteUser = {
   }),
 };
 
+const switchRole = {
+  body: Joi.object().keys({
+    role: Joi.string().valid('employer', 'employee').required(),
+  }),
+};
+
 module.exports = {
   createUser,
   getUsers,
   getUser,
   updateUser,
   deleteUser,
+  switchRole,
 };

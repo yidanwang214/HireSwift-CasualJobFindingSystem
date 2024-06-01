@@ -34,10 +34,16 @@ const deleteUser = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const switchRole = catchAsync(async (req, res) => {
+  const user = await userService.updateUserById(req.user.id, { role: req.body.role });
+  res.send(user);
+});
+
 module.exports = {
   createUser,
   getUsers,
   getUser,
   updateUser,
   deleteUser,
+  switchRole,
 };
