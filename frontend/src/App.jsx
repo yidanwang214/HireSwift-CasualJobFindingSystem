@@ -15,12 +15,14 @@ function App() {
     <>
       <CssBaseline />
       <Header />
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='signup' element={<Register/>}/>
-        <Route path='/jobs' element={<JobList />} /> {/* Static route for JobList */}
-        <Route path='/jobdescription' element={<JobDescription/>}/>
-      </Routes>
+      <div style={{ marginTop: '150px' }}>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='signup' element={<Register/>}/>
+          <Route path='/jobs' element={<JobList />} /> {/* Static route for JobList */}
+          <Route path='/jobdescription' element={<JobDescription/>}/>
+        </Routes>
+      </div>
       <Footer />
     </>
   )
