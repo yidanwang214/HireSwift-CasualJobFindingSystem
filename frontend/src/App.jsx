@@ -9,43 +9,33 @@ import Profile from "./page/Profile";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { initialiseUser } from "./redux/userSlice";
+import JobList from './page/JobList';
+import JobDescription from './page/JobDescription';
+import './index.css';
 
 function App() {
-  const dispatch = useDispatch();
-  const accessToken = useSelector((state) => state.user.accessToken);
-  const isAuthenticate = !!accessToken;
-  useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("user"));
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (userInfo && accessToken && refreshToken) {
-      dispatch(initialiseUser({ userInfo, accessToken, refreshToken }));
-      console.log("Initialising user with:", {
-        userInfo,
-        accessToken,
-        refreshToken,
-      });
-    }
-  }, [dispatch]);
+
 
   return (
     <>
       <CssBaseline />
-
       <Header />
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="signup" element={<Register />} />
-        <Route path="login" element={<Login />} />
-        <Route
-          path="myprofile"
-          element={isAuthenticate ? <Profile /> : <Login />}
-        />
-      </Routes>
+      <div style={{ marginTop: '150px' }}>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='signup' element={<Register/>}/>
+          <Route path='/jobs' element={<JobList />} /> {/* Static route for JobList */}
+          <Route path='/jobdescription' element={<JobDescription/>}/>
+          <Route path="login" element={<Login />} />
+          <Route
+            path="myprofile"
+            element={isAuthenticate ? <Profile /> : <Login />}
+          />
+        </Routes>
+      </div>
       <Footer />
     </>
-  );
+  )
 }
 
-export default App;
+export default App

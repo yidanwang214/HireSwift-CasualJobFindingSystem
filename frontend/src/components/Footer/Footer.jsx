@@ -85,7 +85,7 @@ const Footer = () => {
 
     return (
         <Container maxWidth='xl'>
-            <Divider sx={{ margin: '20px' }}></Divider>
+            <Divider sx={{ margin: '15px' }}></Divider>
             {!isXs && <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 {footers.map((footer) => {
                     return (
