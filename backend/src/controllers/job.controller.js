@@ -40,7 +40,7 @@ const getJobById = catchAsync(async (req, res) => {
 });
 
 const deleteJob = catchAsync(async (req, res) => {
-  const { jobId } = req.params;
+  const { jobId } = req.body;
   await deleteJobById(jobId, req.user);
   res.status(httpStatus.NO_CONTENT).send();
 });
