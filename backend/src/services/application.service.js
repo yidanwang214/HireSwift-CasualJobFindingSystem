@@ -40,6 +40,9 @@ const rejectApplication = async (applicationId, user) => {
 };
 
 const getApplicationsByJobId = async (jobId) => {
+  // TODO: employee name
+  // employee rating
+  // employee history
   return ApplicationModel.find({ jobId }).exec();
 };
 

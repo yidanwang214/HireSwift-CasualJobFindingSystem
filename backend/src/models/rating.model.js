@@ -13,6 +13,11 @@ const ratingModel = mongoose.Schema(
       required: true,
       ref: 'User',
     },
+    jobId: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+      ref: 'Job',
+    },
     applicationId: {
       type: mongoose.Types.ObjectId,
       required: true,

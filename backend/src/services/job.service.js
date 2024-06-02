@@ -39,11 +39,17 @@ const deleteJobById = async (jobId, user) => {
   await JobModel.findByIdAndDelete(jobId);
 };
 
+const escapeRegExp = (str) => {
+  return str.replace(/[\^$\\.*+?()[\]{}|]/g, '\\$&');
+};
+
 const findJobs = async (userId, searchInfo = {}, options = { page: 1, limit: 10 }) => {
   const { search, tag, status, salaryStart, salaryEnd, location, updatedStart, updatedEnd, categoryId } = searchInfo;
   const filter = {};
   if (search) {
-    filter.$text = { $search: search };
+    const searchTerm = escapeRegExp(search);
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    filter.$or = [{ title: { $regex: new RegExp(searchTerm) } }, { description: { $regex: new RegExp(searchTerm) } }];
   }
   if (tag) {
     filter.tags = tag;
@@ -74,7 +80,6 @@ const findJobs = async (userId, searchInfo = {}, options = { page: 1, limit: 10 
     dateFilter.$lte = new Date(updatedEnd).toISOString();
   }
   Object.assign(filter, dateFilter);
-
   const jobList = await JobModel.paginate(filter, options);
   return jobList;
 };
