@@ -51,6 +51,10 @@ const jobSchema = mongoose.Schema(
       required: true,
       trim: true,
     },
+    image: {
+      type: 'String',
+      trim: true,
+    },
   },
   { timestamps: true }
 );

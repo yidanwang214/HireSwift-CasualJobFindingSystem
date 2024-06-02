@@ -3,7 +3,10 @@ import { createSlice } from "@reduxjs/toolkit";
 export const userSlice = createSlice({
   name: "user",
   initialState: {
-    userInfo: localStorage.getItem("user"),
+    userInfo:
+      localStorage.getItem("user") !== undefined
+        ? JSON.parse(localStorage.getItem("user"))
+        : undefined,
     accessToken: localStorage.getItem("accessToken"),
     refreshToken: localStorage.getItem("refreshToken"),
     isLoading: false,
@@ -31,10 +34,15 @@ export const userSlice = createSlice({
     },
     updateUserInfo: (state, action) => {
       state.userInfo = action.payload;
-    }
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, initialiseUser, updateUserInfo } =
-  userSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  initialiseUser,
+  updateUserInfo,
+} = userSlice.actions;
 export default userSlice.reducer;

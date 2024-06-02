@@ -29,6 +29,7 @@ const jobDetails = {
     }),
   location: Joi.string().required(),
   contact: Joi.string().required(),
+  image: Joi.string(),
 };
 
 const jobCreateVad = {
