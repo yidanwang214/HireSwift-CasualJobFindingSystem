@@ -1,10 +1,15 @@
 const httpStatus = require('http-status');
 const ApplicationModel = require('../models/application.model');
+const JobModel = require('../models/job.model');
 const ApiError = require('../utils/ApiError');
 
 const addNewApplication = async (applicationInfo, user) => {
   if (user.role !== 'employee') {
     throw new ApiError(httpStatus.BAD_REQUEST, 'only employee can apply for a job');
+  }
+  const job = await JobModel.findById(applicationInfo.jobId).exec();
+  if (!job || job.status !== 'Opening') {
+    throw new ApiError(httpStatus.BAD_REQUEST, `job ${job.title} is not accepting applicants`);
   }
   const appModel = new ApplicationModel({ ...applicationInfo, employeeId: user._id, status: 'Pending' });
   const ret = await appModel.save();
