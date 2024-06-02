@@ -3,12 +3,12 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import "./JobTable.css";
 import client from "../../utils/request";
-import axios from "axios";
 import { Button, ConfigProvider, Popconfirm, Tag } from "antd";
 import { ProProvider, ProTable } from "@ant-design/pro-components";
 import enGB from "antd/locale/en_GB";
 import "dayjs/locale/en-au";
 import { useSelector } from "react-redux";
+import { categories } from "../JobPublishForm/JobPublish";
 
 const getStatusTagColor = (tag) => {
   // 'Opening', 'Closed', 'In progress', 'Finished'
@@ -22,9 +22,22 @@ const getStatusTagColor = (tag) => {
   return "green";
 };
 
+const ensureUndef = (str) => {
+  if (!str) {
+    return undefined;
+  }
+  if (str === "") {
+    return undefined;
+  }
+  return str;
+};
+
 const JobTable = () => {
-  const columns = [{}];
   const userInfo = useSelector((state) => state.user.userInfo);
+  const catMap = {};
+  categories.forEach((c) => {
+    catMap[c.id] = { text: c.category };
+  });
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -35,6 +48,7 @@ const JobTable = () => {
             token: {
               colorPrimary: "#1976d2",
               borderRadius: "4px",
+              fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
             },
           }}
         >
@@ -42,13 +56,18 @@ const JobTable = () => {
             <ProTable
               rowKey={"id"}
               request={async (params, _, filter) => {
+                console.log(params, filter);
                 try {
                   const resp = await client.post("/jobs/list", {
                     page: params.current,
                     limit: params.pageSize,
                     query: {
-                      ...filter,
-                      search: params.keyword,
+                      status: params.status,
+                      categoryId: params.categoryId
+                        ? parseInt(params.categoryId)
+                        : undefined,
+                      search: ensureUndef(params.title),
+                      location: ensureUndef(params.location),
                     },
                   });
                   const ret = resp.data;
@@ -67,7 +86,12 @@ const JobTable = () => {
                 { title: "Job Title", dataIndex: "title" },
                 {
                   title: "Category",
-                  dataIndex: "category",
+                  dataIndex: "categoryId",
+                  valueEnum: catMap,
+                  valueType: "select",
+                  render: (_, ent) => {
+                    return ent.category;
+                  },
                 },
                 {
                   title: "Salary (Hourly)",
@@ -132,6 +156,11 @@ const JobTable = () => {
                       return info.name;
                     }
                   },
+                  search: false,
+                },
+                {
+                  title: "Location",
+                  dataIndex: "location",
                 },
                 {
                   title: "Actions",

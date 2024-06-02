@@ -5,7 +5,7 @@ import Footer from "./components/Footer/Footer";
 import { Route, Routes } from "react-router-dom";
 import Login from "./page/Login";
 import Register from "./page/Register";
-import MyJob from "./page/Profile";
+import MyJob from "./page/MyJobs";
 import { useSelector } from "react-redux";
 import JobList from "./page/JobList";
 import JobDescription from "./page/JobDescription";

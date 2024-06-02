@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-const categories = [
+export const categories = [
   {
     category: "Others",
     id: 0,

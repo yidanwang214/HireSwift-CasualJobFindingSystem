@@ -6,7 +6,7 @@ import { Drawer } from "@mui/material";
 import { JobPublishForm } from "../components/JobPublishForm/JobPublish";
 import client from "../utils/request";
 
-const MyJob = () => {
+const MyJobs = () => {
   const user = useSelector((state) => state.user.userInfo);
   const [drawerOpen, setDrawerOpen] = useState(false);
   return (
@@ -55,4 +55,4 @@ const MyJob = () => {
   );
 };
 
-export default MyJob;
+export default MyJobs;
