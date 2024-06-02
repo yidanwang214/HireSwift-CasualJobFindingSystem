@@ -15,7 +15,6 @@ const applicationModel = mongoose.Schema(
     },
     note: {
       type: String,
-      required: true,
       trim: true,
     },
     status: {

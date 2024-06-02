@@ -6,7 +6,7 @@
   "extends": ["airbnb-base", "plugin:jest/recommended", "plugin:security/recommended", "plugin:prettier/recommended"],
   "plugins": ["jest", "security", "prettier"],
   "parserOptions": {
-    "ecmaVersion": 2018
+    "ecmaVersion": 2021
   },
   "rules": {
     "no-console": "warn",
@@ -16,6 +16,8 @@
     "jest/expect-expect": "off",
     "security/detect-object-injection": "off",
     "no-unused-vars": "warn",
-    "security/detect-unsafe-regex": "off"
+    "security/detect-unsafe-regex": "off",
+    "no-await-in-loop": "off",
+    "no-restricted-syntax": "off"
   }
 }

@@ -18,7 +18,7 @@ const acceptApplication = async (applicationId, user) => {
   const app = await ApplicationModel.findById(applicationId);
   app.status = 'Accepted';
   await app.save();
-  // reject all other applies
+  // reject all others applies
   ApplicationModel.updateMany({ jobId: app.jobId }, { status: 'Rejected' });
   return app._id;
 };
@@ -32,6 +32,10 @@ const rejectApplication = async (applicationId, user) => {
   app.status = 'Rejected';
   await app.save();
   return app._id;
+};
+
+const getApplicationsByJobId = async (jobId) => {
+  return ApplicationModel.find({ jobId }).exec();
 };
 
 const findApplications = async (searchInfo = {}, options = { page: 1, limit: 10 }) => {
@@ -66,4 +70,5 @@ module.exports = {
   acceptApplication,
   rejectApplication,
   findApplications,
+  getApplicationsByJobId,
 };

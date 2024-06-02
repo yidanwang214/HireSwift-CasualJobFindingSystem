@@ -9,34 +9,35 @@ import Profile from "./page/Profile";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { initialiseUser } from "./redux/userSlice";
-import JobList from './page/JobList';
-import JobDescription from './page/JobDescription';
-import './index.css';
+import JobList from "./page/JobList";
+import JobDescription from "./page/JobDescription";
+import "./index.css";
 
 function App() {
-  const accessToken = useSelector(state => state.user.accessToken);
+  const accessToken = useSelector((state) => state.user.accessToken);
   const isAuthenticate = !!accessToken;
 
   return (
     <>
       <CssBaseline />
       <Header />
-      <div style={{ marginTop: '150px' }}>
+      <div style={{ marginTop: "150px" }}>
         <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='signup' element={<Register/>}/>
-          <Route path='/joblist' element={<JobList />} />
-          <Route path='/jobdescription/:jobid' element={<JobDescription/>}/>
+          <Route path="/" element={<Home />} />
+          <Route path="signup" element={<Register />} />
+          <Route path="/joblist" element={<JobList />} />
+          <Route path="/jobdescription/:jobid" element={<JobDescription />} />
           <Route path="login" element={<Login />} />
           <Route
-            path="myprofile"
+            path="myjobs"
             element={isAuthenticate ? <Profile /> : <Login />}
           />
+          <Route path="/profile/:userId" element={<div></div>} />
         </Routes>
       </div>
       <Footer />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

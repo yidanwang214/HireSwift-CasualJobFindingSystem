@@ -1,5 +1,6 @@
 const objectId = (value, helpers) => {
-  if (!value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/)) {
+  if (!value.match(/^[0-9a-fA-F]{8,24}$/)) {
+    // if (!value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/)) {
     return helpers.message('"{{#label}}" must be a valid id');
   }
   return value;
