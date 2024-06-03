@@ -57,7 +57,7 @@ const jobSearchVad = {
       categoryId: Joi.number(),
     }),
     page: Joi.number().positive(),
-    limit: Joi.number().positive().less(100),
+    limit: Joi.number().positive().max(100),
   }),
 };
 
