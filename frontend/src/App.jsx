@@ -2,13 +2,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Home from "./page/Home";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Login from "./page/Login";
 import Register from "./page/Register";
-import Profile from "./page/Profile";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import { initialiseUser } from "./redux/userSlice";
+import MyJob from "./page/MyJobs";
+import { useSelector } from "react-redux";
 import JobList from "./page/JobList";
 import JobDescription from "./page/JobDescription";
 import "./index.css";
@@ -31,7 +29,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route
             path="myjobs"
-            element={isAuthenticate ? <Profile /> : <Login />}
+            element={isAuthenticate ? <MyJob /> : <Login />}
           />
           <Route path="/profile/:userId" element={<div></div>} />
           <Route path="/profile" element={<UserProfile />} />

@@ -1,9 +1,8 @@
-import { CloudUpload } from "@mui/icons-material";
+import { InboxOutlined } from "@mui/icons-material";
 import {
   Box,
   Button,
   Chip,
-  CircularProgress,
   MenuItem,
   Select,
   Stack,
@@ -11,9 +10,10 @@ import {
   Typography,
   styled,
 } from "@mui/material";
+import { ConfigProvider, Upload, notification } from "antd";
 import { useState } from "react";
 
-const categories = [
+export const categories = [
   {
     category: "Others",
     id: 0,
@@ -140,18 +140,6 @@ const categories = [
   },
 ];
 
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
-
 export const JobPublishForm = ({ onSubmit }) => {
   const [tags, setTags] = useState([]);
   const [currentTag, setCurrentTag] = useState("");
@@ -161,7 +149,6 @@ export const JobPublishForm = ({ onSubmit }) => {
     description: "",
     image: undefined,
   });
-  const [uploading, setUploading] = useState(false);
 
   return (
     <Box
@@ -312,33 +299,50 @@ export const JobPublishForm = ({ onSubmit }) => {
 
       <div
         style={{
+          marginTop: "12px",
           width: "100%",
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
-          height: 50
+          alignItems: "start",
+          flexDirection: "column",
         }}
       >
-        {uploading ? (
-          <CircularProgress />
-        ) : (
-          <Button
-            component="label"
-            startIcon={<CloudUpload />}
-            variant="contained"
+        <Typography variant="subtitle1">Cover Image Upload:</Typography>
+        <ConfigProvider
+          theme={{
+            token: {
+              fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+            },
+          }}
+        >
+          <Upload.Dragger
+            name="file"
+            maxCount={1}
+            multiple={false}
+            action={"http://localhost:3000/v1/upload"}
+            onChange={(info) => {
+              console.log("info: ", info);
+              if (info.file.status === "done") {
+                // upload completed
+                setFormValue({ ...formValue, image: info.file.response });
+                notification.info({ message: "Image upload completed" });
+              } else if (info.file.status === "removed") {
+                setFormValue({ ...formValue, image: undefined });
+              }
+            }}
           >
-            Upload Image
-            <VisuallyHiddenInput
-              type="file"
-              onChange={(event) => {
-                console.log("selected the file: ", event.target.files);
-                // setUploading(true);
-                // TODO:
-
-              }}
-            />
-          </Button>
-        )}
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">
+              Click or drag image to this area to upload
+            </p>
+            <p className="ant-upload-hint">
+              Support for only single upload. Strictly prohibited from uploading
+              company data or other banned files.
+            </p>
+          </Upload.Dragger>
+        </ConfigProvider>
       </div>
 
       <Button

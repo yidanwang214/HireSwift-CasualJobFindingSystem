@@ -1,11 +1,21 @@
 const httpStatus = require('http-status');
 const RatingModel = require('../models/rating.model');
 const ApiError = require('../utils/ApiError');
+const JobModel = require('../models/job.model');
 
 const addNewRating = async (ratingInfo, user) => {
+  const { jobId } = ratingInfo;
+  const job = await JobModel.findById(jobId).exec();
+  if (!job || job.status !== 'Finished') {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'You can only rate a completed job');
+  }
   const model = new RatingModel({ ...ratingInfo, raterId: user._id, fromEmployee: user.role === 'employee' });
   const savedModel = await model.save();
   return savedModel._id;
+};
+
+const getAllRatings = async (userId) => {
+  return RatingModel.find({ recipientId: userId }).exec();
 };
 
 const findRatings = async (searchInfo = {}, options = { page: 1, limit: 10 }) => {
@@ -51,4 +61,5 @@ module.exports = {
   addNewRating,
   findRatings,
   calcRatingById,
+  getAllRatings,
 };

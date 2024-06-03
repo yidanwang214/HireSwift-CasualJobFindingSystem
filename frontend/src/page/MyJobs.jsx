@@ -5,9 +5,9 @@ import { useSelector } from "react-redux";
 import { Drawer } from "@mui/material";
 import { JobPublishForm } from "../components/JobPublishForm/JobPublish";
 import client from "../utils/request";
-const Profile = () => {
+
+const MyJobs = () => {
   const user = useSelector((state) => state.user.userInfo);
-  console.log("profile: ", user);
   const [drawerOpen, setDrawerOpen] = useState(false);
   return (
     <>
@@ -55,4 +55,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default MyJobs;
