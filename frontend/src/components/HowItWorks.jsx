@@ -13,14 +13,14 @@ const steps = [
 const HowItWorks = () => {
   return (
     <Container maxWidth='xl' sx={{ py: 5 }}>
-      <Typography variant="h4" component="h2" align="center" gutterBottom>
+      <Typography variant="h4" component="h2" align="center" gutterBottom sx={{ mb: 4 }}>
         How It Works
       </Typography>
       <Grid container spacing={4} justifyContent="center">
         {steps.map((step, index) => (
           <Grid item xs={12} md={4} key={index} textAlign="center">
             <Box>{step.icon}</Box>
-            <Typography variant="h6" component="h3">{step.title}</Typography>
+            <Typography variant="h6" component="h3" sx={{ mt: 2 }}>{step.title}</Typography>
             <Typography>{step.description}</Typography>
           </Grid>
         ))}

@@ -19,7 +19,7 @@ const EmployerProfile = () => {
 
   for (let i = 1; i <= 10; i++) {
     employer.ratings.push({
-      employer: `Company ${i}`,
+      employer: `Freelancer ${i}`,
       jobTitle: `Project ${i}`,
       rating: (Math.random() * 4 + 1).toFixed(1),
       comment: `This is a longer comment for project ${i}, highlighting the excellent collaboration and the positive feedback from the freelancers. The project was completed successfully with great attention to detail and efficiency.`,
@@ -56,23 +56,44 @@ const EmployerProfile = () => {
             title="Company Size"
             value={employerInfo.companySize}
             onSave={(value) => updateEmployerInfo('companySize', value)}
-          />
+          >
+            <input
+              type="text"
+              value={employerInfo.companySize}
+              onChange={(e) => updateEmployerInfo('companySize', e.target.value)}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
         </div>
-        <div>
+        <div className="md:col-span-1">
           <EditableInfoCard
             title="Industry"
             value={employerInfo.industry}
             onSave={(value) => updateEmployerInfo('industry', value)}
-          />
+          >
+            <input
+              type="text"
+              value={employerInfo.industry}
+              onChange={(e) => updateEmployerInfo('industry', e.target.value)}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
         </div>
         <div className="md:col-span-2">
           <EditableInfoCard
             title="Location"
             value={employerInfo.location}
             onSave={(value) => updateEmployerInfo('location', value)}
-          />
+          >
+            <input
+              type="text"
+              value={employerInfo.location}
+              onChange={(e) => updateEmployerInfo('location', e.target.value)}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
         </div>
-        <div>
+        <div className="md:col-span-1">
           <EditableInfoCard
             title="Languages"
             value={employerInfo.languages.map(lang => `${lang.language} (${lang.proficiency})`).join(', ')}
