@@ -26,7 +26,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="signup" element={<Register />} />
           <Route path="/joblist" element={<JobList />} />
-          <Route path="/jobdescription/:jobid" element={<JobDescription />} />
+          <Route path="/jobdescription/:jobId" element={<JobDescription />} />
           <Route path="login" element={<Login />} />
           <Route
             path="myjobs"

@@ -103,7 +103,7 @@ const JobList = () => {
                     });
                     return newDisabled;
                 });
-            } else { // remove the current item from filters
+            } else { // unselect a checkbox, remove the current item from filters
                 tmpFilters = tmpFilters.filter(filter => !(filter.sectionId === sectionId && filter.categoryId === item.id));
                 // enable other checkboxes in the same section
                 setDisabledCheckboxes(prevDisabled => {
