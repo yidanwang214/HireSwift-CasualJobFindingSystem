@@ -12,6 +12,7 @@ import { initialiseUser } from "./redux/userSlice";
 import JobList from "./page/JobList";
 import JobDescription from "./page/JobDescription";
 import "./index.css";
+import UserProfile from './components/UserProfile/UserProfile';
 
 function App() {
   const accessToken = useSelector((state) => state.user.accessToken);
@@ -33,6 +34,7 @@ function App() {
             element={isAuthenticate ? <Profile /> : <Login />}
           />
           <Route path="/profile/:userId" element={<div></div>} />
+          <Route path="/profile" element={<UserProfile />} />
         </Routes>
       </div>
       <Footer />

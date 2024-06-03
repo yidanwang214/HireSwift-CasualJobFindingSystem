@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.btn-primary {
+  @apply bg-green-500 text-white py-1 px-3 rounded text-xs;
+  font-weight: normal; /* Make the text not bold */
+}
+
+.btn-secondary {
+  @apply bg-gray-500 text-white py-1 px-3 rounded text-xs;
+  font-weight: normal; /* Make the text not bold */
+}
+
+.btn-edit {
+  @apply bg-blue-500 text-white py-1 px-3 rounded text-xs;
+  font-weight: normal; /* Make the text not bold */
+}
+
+.container {
+  @apply max-w-screen-lg mx-auto;
+}

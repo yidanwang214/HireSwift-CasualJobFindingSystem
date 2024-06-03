@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import logo from '../../assets/logo-black.png';
 
 //Data to be collected from backend
-const pages = ['Find talent', 'Find job', 'Why HireSwift', 'Enterprise', 'Sign in'];
+const pages = ['Find talent', 'Find job', 'Why HireSwift', 'Sign in'];
 const explore = [
     { title: 'Discover', content: 'Inspiring projects made on our platform' },
     { title: 'Community', content: 'Connect with our team and community' },
