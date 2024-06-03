@@ -11,11 +11,13 @@ const UserProfile = () => {
     introduction: 'An experienced web designer with a passion for creating visually appealing and user-friendly websites. Skilled in Ajax, React, and various other web technologies. Dedicated to delivering high-quality work and ensuring client satisfaction.',
     title: 'Expert Web Designer with Ajax experience',
     hourlyRate: '70.00',
+    hoursPerWeek: 'More than 30 hrs/week',
+    education: 'Master of Computing and Innovation, University of Adelaide',
+    licenses: 'Certified Web Developer',
+    skills: 'Web Design, React, JavaScript, CSS, HTML, Ajax',
     languages: [
       { language: 'English', proficiency: 'Fluent' },
     ],
-    licenses: [],
-    education: [],
     ratings: []
   };
 
@@ -66,21 +68,88 @@ const UserProfile = () => {
             />
           </EditableInfoCard>
         </div>
-        <div>
-          <EditableInfoCard
-            title="Hourly Rate"
-            value={`$${userInfo.hourlyRate}/hr`}
-            onSave={(value) => updateUserInfo('hourlyRate', value.replace(/[^0-9]/g, ''))}
-          />
-        </div>
-        <div className="md:col-span-2">
+        <div className="md:col-span-1">
           <EditableInfoCard
             title="Location"
             value={userInfo.location}
             onSave={(value) => updateUserInfo('location', value)}
-          />
+          >
+            <input
+              type="text"
+              value={userInfo.location}
+              onChange={(e) => updateUserInfo('location', e.target.value)}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
         </div>
-        <div>
+        <div className="md:col-span-2">
+          <EditableInfoCard
+            title="Hourly Rate"
+            value={`$${userInfo.hourlyRate}/hr`}
+            onSave={(value) => updateUserInfo('hourlyRate', parseFloat(value.replace(/[^0-9.]/g, '')).toFixed(2))}
+          >
+            <input
+              type="text"
+              value={`$${userInfo.hourlyRate}/hr`}
+              onChange={(e) => updateUserInfo('hourlyRate', e.target.value.replace(/[^0-9.]/g, ''))}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
+        </div>
+        <div className="md:col-span-1">
+          <EditableInfoCard
+            title="Hours per Week"
+            value={userInfo.hoursPerWeek}
+            onSave={(value) => updateUserInfo('hoursPerWeek', value)}
+          >
+            <input
+              type="text"
+              value={userInfo.hoursPerWeek}
+              onChange={(e) => updateUserInfo('hoursPerWeek', e.target.value)}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
+        </div>
+        <div className="md:col-span-2">
+          <EditableInfoCard
+            title="Education"
+            value={userInfo.education}
+            onSave={(value) => updateUserInfo('education', value)}
+          >
+            <textarea
+              value={userInfo.education}
+              onChange={(e) => updateUserInfo('education', e.target.value)}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
+        </div>
+        <div className="md:col-span-1">
+          <EditableInfoCard
+            title="Licenses"
+            value={userInfo.licenses}
+            onSave={(value) => updateUserInfo('licenses', value)}
+          >
+            <textarea
+              value={userInfo.licenses}
+              onChange={(e) => updateUserInfo('licenses', e.target.value)}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
+        </div>
+        <div className="md:col-span-2">
+          <EditableInfoCard
+            title="Skills"
+            value={userInfo.skills}
+            onSave={(value) => updateUserInfo('skills', value)}
+          >
+            <textarea
+              value={userInfo.skills}
+              onChange={(e) => updateUserInfo('skills', e.target.value)}
+              className="border p-2 rounded w-full mt-2"
+            />
+          </EditableInfoCard>
+        </div>
+        <div className="md:col-span-1">
           <EditableInfoCard
             title="Languages"
             value={userInfo.languages.map(lang => `${lang.language} (${lang.proficiency})`).join(', ')}

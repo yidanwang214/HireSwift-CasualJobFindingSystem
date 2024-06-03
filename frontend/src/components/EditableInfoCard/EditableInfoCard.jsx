@@ -15,7 +15,7 @@ const EditableInfoCard = ({ title, value, onSave, children }) => {
       {isEditing ? (
         <div>
           {children ? (
-            children
+            React.cloneElement(children, { value: editValue, onChange: (e) => setEditValue(e.target.value) })
           ) : (
             <input
               type="text"
