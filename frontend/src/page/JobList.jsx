@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Typography, Grid, Card, CardContent, Chip, Stack, IconButton,
-    Accordion, AccordionSummary, AccordionDetails, Checkbox, FormControlLabel, FormGroup,Divider,Box, Modal
+    Accordion, AccordionSummary, AccordionDetails, Checkbox, FormControlLabel, FormGroup,Divider,Box
 } from '@mui/material';
 import { FavoriteBorder,Favorite, LocationOn} from '@mui/icons-material'; 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -36,10 +36,22 @@ const JobList = () => {
     const [expanded, setExpanded] = useState([]);
     const [jobs, setJobs] = useState([]);
     const [selectedFilters, setSelectedFilters] = useState([]);
+    const [disabledCheckboxes, setDisabledCheckboxes] = useState({});
 
     useEffect(() => {
         const allSections = filterSections.map((_, index) => index.toString());
         setExpanded(allSections);
+
+        const initializeCheckboxes = () => {
+            let checkboxes = {};
+            filterSections.forEach(section => {
+                section.data.forEach(item => {
+                    checkboxes[`${section.id}_${item.id}`] = false;
+                });
+            });
+            setDisabledCheckboxes(checkboxes);
+        };
+        initializeCheckboxes();
 
         // request all jobs from backend
         const getAllJobs = async () => {
@@ -76,26 +88,39 @@ const JobList = () => {
     const handleFilter = (sectionId, item, target) => {
         setSelectedFilters((prev) => {
             let tmpFilters = [...prev];
-            const duplicateSection = tmpFilters.find(filter => filter.sectionId === sectionId && filter.categoryId !== item.id);
-            if(duplicateSection){
-                console.log("can't choose the same section");
-                return tmpFilters;
-            }
-
+            const isFilterSelected = tmpFilters.some(filter => filter.sectionId === sectionId && filter.categoryId === item.id);
             if (target.checked) { // add the current item to filters
-                tmpFilters.push({ sectionId, categoryId: item.id });
-            } else { // Delete the current item from filters
+                if (!isFilterSelected) {
+                    tmpFilters.push({ sectionId, categoryId: item.id });
+                }
+                // disable other checkboxes in the same section
+                setDisabledCheckboxes(prevDisabled => {
+                    let newDisabled = { ...prevDisabled };
+                    filterSections.find(section => section.id === sectionId).data.forEach(filterItem => {
+                        if (filterItem.id !== item.id) {
+                            newDisabled[`${sectionId}_${filterItem.id}`] = true;
+                        }
+                    });
+                    return newDisabled;
+                });
+            } else { // remove the current item from filters
                 tmpFilters = tmpFilters.filter(filter => !(filter.sectionId === sectionId && filter.categoryId === item.id));
+                // enable other checkboxes in the same section
+                setDisabledCheckboxes(prevDisabled => {
+                    let newDisabled = { ...prevDisabled };
+                    filterSections.find(section => section.id === sectionId).data.forEach(filterItem => {
+                        newDisabled[`${sectionId}_${filterItem.id}`] = false;
+                    });
+                    return newDisabled;
+                });
             }
-            const filtergroup = document.getElementById('filtergroup');
-            console.log("section: " + filtergroup)
+            
             return tmpFilters;
         }) 
     }
     
     useEffect(() => {
         const getFilteredJobs = async () => {
-            console.log("selectedFilters: " + JSON.stringify(selectedFilters))
             let query = {};
             selectedFilters.forEach((filter) => {
                 if (filter.sectionId === 1) {
@@ -120,7 +145,6 @@ const JobList = () => {
                     query.salaryEnd = salaryEnd;
                 }
             });
-            console.log("query: " + JSON.stringify(query));
             try {
               const response = await client.post('/jobs/list', {
                 "query": query,
@@ -131,7 +155,6 @@ const JobList = () => {
                 ...job,
                 ownerRating: (Math.random()*5).toFixed(1)
               }));
-              console.log('jobs with updated rating:', updatedJobs);
               setJobs(updatedJobs);
             } catch (error) {
               console.error('All jobs fetching err:', error);
@@ -229,7 +252,7 @@ const JobList = () => {
                             <Typography style={{ fontSize: '0.9rem' }}>{section.title}</Typography>
                         </AccordionSummary>
                         <AccordionDetails sx={{ paddingTop: 0, paddingBottom: 0 }}>
-                            <FormGroup id='filtergroup'>
+                            <FormGroup id={`formGroup-${section.id}`}>
                                 {section.data.map(item => (
                                     <FormControlLabel
                                         key={item.category}
@@ -241,16 +264,17 @@ const JobList = () => {
                                                 onChange={(event) => {
                                                     handleFilter(section.id, item, event.target);
                                                 }}
+                                                disabled={disabledCheckboxes[`${section.id}_${item.id}`] && !selectedFilters.some(filter => filter.sectionId === section.id && filter.categoryId === item.id)}
                                             />
                                         }
                                         label={item.category}
                                         sx={{
-                                            margin: '0px 0', // Reduced vertical margin
-                                            '& .MuiTypography-root': { // Targeting the Typography within FormControlLabel
-                                                fontSize: '0.85rem', // Smaller font size
+                                            margin: '0px 0',
+                                            '& .MuiTypography-root': {
+                                                fontSize: '0.85rem',
                                             },
-                                            '& .MuiFormControlLabel-label': { // Targeting the label directly for compact spacing
-                                                margin: '0 2px', // Adjust horizontal spacing if needed
+                                            '& .MuiFormControlLabel-label': {
+                                                margin: '0 2px',
                                             }
                                         }}
                                     />
