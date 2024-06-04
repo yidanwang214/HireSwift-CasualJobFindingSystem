@@ -7,6 +7,8 @@ import { useState } from 'react';
 
 const SearchBar = () => {
   const [isFocused, setIsFocused] = useState(false)
+  const [query, setQuery] = useState('')
+
 
   return (
     <>

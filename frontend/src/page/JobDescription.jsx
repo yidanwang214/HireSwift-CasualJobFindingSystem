@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Rating from '@mui/material/Rating';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
@@ -345,6 +345,10 @@ const JobDescription = () => {
     console.log(jobid)
     const job = jobs.find(item => item.id == jobid);
     console.log(job)
+
+    useEffect(()=>{
+        window.scrollTo(0,0)
+    },[])
 
     const copyUrlToClipboard = () => {
         const currentUrl = window.location.href;

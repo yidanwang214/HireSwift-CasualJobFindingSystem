@@ -23,9 +23,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="signup" element={<Register />} />
-          <Route path="/joblist" element={<JobList />} />
+          <Route path="/joblist/" element={<JobList />} />
           <Route path="/jobdescription/:jobid" element={<JobDescription />} />
-          <Route path="login" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route
             path="myjobs"
             element={isAuthenticate ? <MyJob /> : <Login />}
