@@ -8,9 +8,9 @@ const { getApplicationsByJobId } = require('../services/application.service');
 
 const listJob = catchAsync(async (req, res) => {
   const { query, page, limit } = req.body;
-  const uid = req.user._id;
+  const { user } = req;
 
-  const ret = await findJobs(uid, query, { page, limit });
+  const ret = await findJobs(user, query, { page, limit });
   if (ret && ret.results && ret.results.length > 0) {
     for (const item of ret.results) {
       // publisher information

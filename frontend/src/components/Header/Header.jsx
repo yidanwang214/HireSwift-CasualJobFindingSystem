@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Box,
@@ -7,17 +7,17 @@ import {
   Typography,
   Menu,
   Button,
+  Tooltip,
   MenuItem,
   Container,
   Divider,
-  Avatar,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo-black.png";
-import { useSelector } from "react-redux";
+
 //Data to be collected from backend
 const pages = [
   "Find talent",
@@ -26,73 +26,6 @@ const pages = [
   "Enterprise",
   "Sign in",
 ];
-
-const categorizedList = [
-  {
-    category: "Business",
-    subcategories: [
-      { subcategory: "Accounting", id: 1 },
-      { subcategory: "Banking & Financial Services", id: 4 },
-      { subcategory: "Human Resources & Recruitment", id: 17 },
-    ],
-  },
-  {
-    category: "Creative Media",
-    subcategories: [
-      { subcategory: "Advertising, Arts & Media", id: 3 },
-      { subcategory: "Design & Architecture", id: 10 },
-    ],
-  },
-  {
-    category: "Education Training",
-    subcategories: [{ subcategory: "Education & Training", id: 11 }],
-  },
-  {
-    category: "Trades",
-    subcategories: [
-      { subcategory: "Construction", id: 8 },
-      { subcategory: "Engineering", id: 12 },
-      { subcategory: "Trades & Services", id: 30 },
-    ],
-  },
-  {
-    category: "Hospitality Tourism",
-    subcategories: [
-      { subcategory: "Hospitality & Tourism", id: 16 },
-      { subcategory: "Sport & Recreation", id: 29 },
-    ],
-  },
-  {
-    category: "Healthcare",
-    subcategories: [{ subcategory: "Healthcare & Medical", id: 15 }],
-  },
-  {
-    category: "Technology",
-    subcategories: [{ subcategory: "Science & Technology", id: 27 }],
-  },
-  {
-    category: "Public Social Services",
-    subcategories: [
-      { subcategory: "Community Services & Development", id: 7 },
-      { subcategory: "Government & Defence", id: 14 },
-    ],
-  },
-  {
-    category: "Resources Energy",
-    subcategories: [
-      { subcategory: "Farming, Animals & Conservation", id: 13 },
-      { subcategory: "Mining, Resources & Energy", id: 23 },
-    ],
-  },
-  {
-    category: "Others",
-    subcategories: [
-      { subcategory: "Self Employment", id: 28 },
-      { subcategory: "Others", id: 0 },
-    ],
-  },
-];
-
 const explore = [
   { title: "Discover", content: "Inspiring projects made on our platform" },
   { title: "Community", content: "Connect with our team and community" },
@@ -141,25 +74,7 @@ function ResponsiveAppBar() {
   const [anchorElExploreMenu, setAnchorElExploreMenu] = useState(null);
   const [anchorElPremiumMenu, setAnchorElPremiumMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [anchorELAvatar, setAnchorELAvatar] = useState(null);
-  const [clickedCategory, setClikedCategory] = useState(null);
-  const accessToken = useSelector((state) => state.user.accessToken);
-  const isAuthenticate = !!accessToken;
-
   const navigate = useNavigate();
-  const openAvatar = Boolean(anchorELAvatar);
-
-  const handleCategoryID = (e) => {
-    console.log(e.target);
-  };
-
-  const handleAvatar = (e) => {
-    setAnchorELAvatar(e.currentTarget);
-  };
-
-  const handleAvatarClose = () => {
-    setAnchorELAvatar(null);
-  };
 
   const handleSearchInput = (e) => {
     setSearchQuery(e.target.value);
@@ -182,9 +97,14 @@ function ResponsiveAppBar() {
     setAnchorElNav(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleCloseExtraNavMenu = () => {
+    setAnchorElExploreMenu(null);
+    setAnchorElPremiumMenu(null);
+  };
+
+  const handleSubmit =  (e) => {
     e.preventDefault();
-    navigate(`/joblist/?search=${searchQuery}`);
+    navigate(`/joblist/?search=${searchQuery}`)
   };
 
   return (
@@ -242,67 +162,38 @@ function ResponsiveAppBar() {
               justifyContent: "flex-end",
             }}
           >
-            {pages.map((page) =>
-              page === "Sign in" && isAuthenticate ? null : (
-                <Button
-                  key={page}
-                  onClick={(e) => handleOpenExtraNavMenu(e, page)}
-                  sx={{
-                    my: 2,
-                    mx: 1,
-                    color: "black",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {page}
-                </Button>
-              )
-            )}
-            {isAuthenticate ? null : (
+            {pages.map((page) => (
               <Button
-                component={Link}
-                to="/signup"
-                variant="contained"
+                key={page}
+                onClick={(e) => handleOpenExtraNavMenu(e, page)}
                 sx={{
                   my: 2,
                   mx: 1,
-                  color: "white",
-                  backgroundColor: "#2196f3", // Lighter blue color
+                  color: "black",
                   textTransform: "capitalize",
-                  ":hover": {
-                    backgroundColor: "deepskyblue",
-                  },
                 }}
               >
-                Join
+                {page}
               </Button>
-            )}
+            ))}
+            <Button
+              component={Link}
+              to="/signup"
+              variant="contained"
+              sx={{
+                my: 2,
+                mx: 1,
+                color: "white",
+                backgroundColor: "#2196f3", // Lighter blue color
+                textTransform: "capitalize",
+                ":hover": {
+                  backgroundColor: "deepskyblue",
+                },
+              }}
+            >
+              Join
+            </Button>
           </Box>
-          {isAuthenticate ? (
-            <IconButton color="inherit" onClick={handleAvatar}>
-              <Avatar alt="User Name" src="" />
-            </IconButton>
-          ) : null}
-          <Menu
-            anchorEl={anchorELAvatar}
-            open={openAvatar}
-            onClose={handleAvatarClose}
-          >
-            <MenuItem
-              onClick={() => {
-                navigate("/profile");
-              }}
-            >
-              My Profile
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                navigate("/myjobs");
-              }}
-            >
-              My Jobs
-            </MenuItem>
-          </Menu>
         </Toolbar>
         <Divider sx={{ borderBottomWidth: 0.1, borderColor: "lightgray" }} />
         <Toolbar
@@ -310,26 +201,21 @@ function ResponsiveAppBar() {
           sx={{ justifyContent: "flex-start", minHeight: "40px", mt: -1 }}
         >
           <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "flex-start",
-            }}
+            sx={{ width: "70%", display: "flex", justifyContent: "flex-start" }}
           >
-            {categorizedList.map((key) => (
+            {explore.map((item) => (
               <Button
-                key={key.category}
+                key={item.title}
                 onClick={(e) => handleOpenExtraNavMenu(e, "Explore")}
                 sx={{
                   my: 2,
                   mx: 1,
                   color: "black",
                   textTransform: "capitalize",
-                  fontWeight: 700,
                 }}
                 aria-haspopup="true"
               >
-                {key.category}
+                {item.title}
               </Button>
             ))}
           </Box>
@@ -340,31 +226,18 @@ function ResponsiveAppBar() {
             anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
             keepMounted
             transformOrigin={{ vertical: "top", horizontal: "left" }}
-            onClose={() => {
-              setAnchorElExploreMenu(null);
-              setAnchorElPremiumMenu(null);
-            }}
+            onClose={handleCloseExtraNavMenu}
           >
-            {clickedCategory &&
-              categorizedList
-                .find((category) => category.category === clickedCategory)
-                ?.subcategories.map((subcategory) => (
-                  <MenuItem
-                    key={subcategory.subcategory}
-                    onClick={() => {
-
-                      setAnchorElExploreMenu(null);
-                      setAnchorElPremiumMenu(null);
-                      navigate(`/joblist/?categoryId=${subcategory.id}`)
-                    }}
-                  >
-                    <Box sx={{ display: "flex", flexDirection: "column" }}>
-                      <Typography variant="body2">
-                        {subcategory.subcategory}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                ))}
+            {explore.map((item) => (
+              <MenuItem key={item.title} onClick={handleCloseExtraNavMenu}>
+                <Box sx={{ display: "flex", flexDirection: "column" }}>
+                  <Typography variant="body1" fontWeight={700}>
+                    {item.title}
+                  </Typography>
+                  <Typography variant="body2">{item.content}</Typography>
+                </Box>
+              </MenuItem>
+            ))}
           </Menu>
         </Toolbar>
       </Container>

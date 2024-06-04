@@ -5,7 +5,6 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-
 const footers = [
     {
         title: 'Categories', contents: ['Graphics & Design',
@@ -90,12 +89,11 @@ const Footer = () => {
                 {footers.map((footer) => {
                     return (
                         <Box key={footer.title} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', margin: '20px' }}>
-                            <Typography variant="body1" sx={{ whiteSpace: 'nowrap', fontWeight: 700 }}>{footer.title}</Typography>
+                            <Typography variant="body1" sx={{ whiteSpace: 'nowrap', fontWeight: 700, textTransform: 'capitalize' }}>{footer.title}</Typography>
                             {footer.contents.map((content) => {
-                                return <Button key={content} variant="text" sx={{ display: 'flex', justifyContent: 'flex-start', padding: '0px', margin: "5px 0", whiteSpace: 'nowrap', color: 'black' }}>{content}</Button>
+                                return <Button key={content} variant="text" sx={{ display: 'flex', justifyContent: 'flex-start', padding: '0px', margin: "5px 0", whiteSpace: 'nowrap', color: 'black', textTransform: 'capitalize' }}>{content}</Button>
                             })}
                         </Box>
-
                     )
                 })}
             </Box>}
@@ -107,7 +105,7 @@ const Footer = () => {
                                 expandIcon={<ExpandMoreIcon />}
                                 aria-controls="panel1-content"
                                 id="panel1-header"
-                                sx={{ fontWeight: 700, margin: '0' }}
+                                sx={{ fontWeight: 700, margin: '0', textTransform: 'capitalize' }}
                             >
                                 {
                                     footer.title
@@ -115,16 +113,13 @@ const Footer = () => {
                             </AccordionSummary>
                             <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
                                 {footer.contents.map((content) => {
-                                    return <Button key={content} sx={{ color: 'black', padding: '0', display: 'flex', justifyContent: 'flex-start' }}>{content}</Button>
+                                    return <Button key={content} sx={{ color: 'black', padding: '0', display: 'flex', justifyContent: 'flex-start', textTransform: 'capitalize' }}>{content}</Button>
                                 })}
                             </AccordionDetails>
                         </Accordion>
-
                     )
                 })}
-            </Box>
-
-            }
+            </Box>}
         </Container>
     )
 }
