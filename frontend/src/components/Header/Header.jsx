@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import logo from '../../assets/logo-black.png';
 
 //Data to be collected from backend
-const pages = ['Find talent', 'Find job', 'Why HireSwift', 'Sign in'];
+const pages = [['Find talent', ''], ['Find job', ''], ['Why HireSwift', 'aboutus'], ['Login in', 'login']];
 const explore = [
     { title: 'Discover', content: 'Inspiring projects made on our platform' },
     { title: 'Community', content: 'Connect with our team and community' },
@@ -111,11 +111,11 @@ function ResponsiveAppBar() {
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end' }}>
                         {pages.map((page) => (
                             <Button
-                                key={page}
-                                onClick={(e) => handleOpenExtraNavMenu(e, page)}
+                                key={page[0]}
+                                onClick={(e) => handleOpenExtraNavMenu(e, page[0])}
                                 sx={{ my: 2, mx: 1, color: 'black', textTransform: 'capitalize' }}
                             >
-                                {page}
+                                <Link to={`/${page[1]}`}>{page[0]}</Link>
                             </Button>
                         ))}
                         <Button
