@@ -35,6 +35,15 @@ export const userSlice = createSlice({
     updateUserInfo: (state, action) => {
       state.userInfo = action.payload;
     },
+    logout: (state) => {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      localStorage.removeItem("refreshToken");
+      state.userInfo = undefined;
+      state.accessToken = undefined;
+      state.refreshToken = undefined;
+      state.error = null;
+    }
   },
 });
 
@@ -44,5 +53,6 @@ export const {
   loginFailure,
   initialiseUser,
   updateUserInfo,
+  logout
 } = userSlice.actions;
 export default userSlice.reducer;

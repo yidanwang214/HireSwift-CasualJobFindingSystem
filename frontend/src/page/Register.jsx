@@ -208,8 +208,13 @@ const Register = () => {
         );
         const loginData = await loginResponse.json();
         if (loginResponse.ok) {
+          const { user, tokens } = loginData;
+          const { access, refresh } = tokens;
+          localStorage.setItem("accessToken", access.token);
+          localStorage.setItem("refreshToken", refresh.token);
+          localStorage.setItem("user", JSON.stringify(user));
           dispatch(loginSuccess(loginData));
-          navigate("/myprofile");
+          navigate("/", {replace: true});
         } else {
           setErrMsg(loginData.message || "Login failed after registration");
           dispatch(
