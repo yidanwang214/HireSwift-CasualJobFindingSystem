@@ -26,10 +26,10 @@ const acceptApplication = async (applicationId, user) => {
   app.status = 'Accepted';
   await app.save();
   // reject all others applies
-  ApplicationModel.updateMany({ jobId: app.jobId }, { status: 'Rejected' });
+  await ApplicationModel.updateMany({ jobId: app.jobId, _id: { $ne: applicationId } }, { status: 'Rejected' });
 
   // job in progress
-  JobModel.findByIdAndUpdate(app.jobId, { status: 'In progress' });
+  await JobModel.findByIdAndUpdate(app.jobId, { status: 'In progress' });
 
   return app._id;
 };
@@ -52,7 +52,6 @@ const getApplicationsByJobId = async (jobId) => {
     app.employee = await getUserById(app.employeeId);
     app.employeeRating = await calcRatingById(app.employeeId);
   }
-  console.log(ret);
   // employee name
   // employee rating
   // employee history
