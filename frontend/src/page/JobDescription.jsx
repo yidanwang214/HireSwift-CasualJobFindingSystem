@@ -3,30 +3,56 @@ import Rating from "@mui/material/Rating";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import { Chip } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import defaultLogo from "../assets/logo.png";
 import defaultPhoto from "../assets/employerPhoto/default.jpeg";
-import client from "../utils/request";
+import client, { baseUrl } from "../utils/request";
 import CopyToClipboardModal from "../components/JobDescription/CopyToClipboardModal";
+import { Rate, message, notification } from "antd";
+import { useSelector } from "react-redux";
 
-const reviews = [
-  {
-    id: 1,
-    pros: ["good pay", "good manager"],
-    cons: ["long commute"],
-    rating: 4.5,
-  },
-  {
-    id: 2,
-    pros: ["good staff meal"],
-    cons: ["low pay rate"],
-    rating: 4.2,
-  },
-];
+const getButtonTitle = (userInfo, job) => {
+  if (job?.status !== "Opening") {
+    return "View Only";
+  }
+
+  if (!userInfo) {
+    return "Apply";
+  }
+
+  if (userInfo.role === "employer") {
+    return "Unappliable Role";
+  }
+
+  if (job.applicants.some((appt) => appt.employeeId === userInfo.id)) {
+    return "Pending";
+  }
+
+  return "Apply";
+};
+
+const getButtonDisabled = (userInfo, job) => {
+  if (job?.status !== "Opening") {
+    return true;
+  }
+
+  if (!userInfo) {
+    return false;
+  }
+
+  if (userInfo.role === "employer") {
+    return true;
+  }
+
+  if (job.applicants.some((appt) => appt.employeeId === userInfo.id)) {
+    return true;
+  }
+
+  return false;
+};
 
 const JobDescription = () => {
   const { jobId } = useParams();
-  console.log(jobId);
   const [job, setJob] = useState({
     tags: [],
     categoryId: null,
@@ -46,27 +72,40 @@ const JobDescription = () => {
     ownerRating: 0,
     applicants: [],
   });
+  const [employerRatings, setEmployerRatings] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const userInfo = useSelector((state) => state.user.userInfo);
+  const navigate = useNavigate();
+  const [refreshToken, setRefreshToken] = useState(1.0);
+
+  useEffect(() => {
+    client
+      .get("/rating/getAllRatingsByJobId", { params: { jobId: jobId } })
+      .then((resp) => {
+        setEmployerRatings(resp.data);
+      });
+  }, [jobId]);
 
   useEffect(() => {
     const getJob = async () => {
       try {
         const response = await client.get(`/jobs/${jobId}`);
-        console.log("response: " + JSON.stringify(response.data));
+        console.log("response: ", response.data);
         let jobData = { ...response.data };
-        jobData.ownerRating = parseFloat((Math.random() * 5).toFixed(1));
-        jobData.applicants = new Array(Math.floor(Math.random() * 100)).fill({
-          name: "",
-          age: 0,
-          position: "",
-        });
+        // jobData.ownerRating = parseFloat((Math.random() * 5).toFixed(1));
+        // jobData.applicants = new Array(Math.floor(Math.random() * 100)).fill({
+        //   name: "",
+        //   age: 0,
+        //   position: "",
+        // });
         setJob(jobData);
       } catch (error) {
         console.error("All jobs fetching err:", error);
       }
     };
     getJob();
-  }, []);
+  }, [jobId, refreshToken]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -83,38 +122,23 @@ const JobDescription = () => {
         console.error("Failed to copy: ", err);
       });
   };
-  const {
-    tags,
-    categoryId,
-    status,
-    ownerId,
-    title,
-    description,
-    location,
-    contact,
-    salaryStart,
-    salaryEnd,
-    createdAt,
-    updatedAt,
-    id,
-    category,
-    ownerInfo,
-    ownerRating,
-    applicants,
-  } = job;
   return (
     <div id="jobDescription" className="flex flex-row mt-5 font-sans">
       <div id="jobDetails" className="basis-2/3 mx-10">
         <div id="title" className="flex flex-row align-middle">
           <h1 id="jobtitle" className="text-2xl font-bold">
-            {title}
+            {job?.title}
           </h1>
         </div>
-        <div id="employerInfo" className="flex flex-row">
+        <div
+          id="employerInfo"
+          className="flex flex-row"
+          style={{ marginTop: "16px" }}
+        >
           <div id="employeeLogo" className="flex flex-row basis-2/3 flex-1">
-            {job.logo ? (
+            {job?.logo ? (
               <img
-                key={id}
+                key={job.id}
                 src={job.logo}
                 alt="Employer Logo"
                 width={150}
@@ -130,10 +154,10 @@ const JobDescription = () => {
               />
             )}
             <p className="flex flex-col ml-6">
-              <span>{category}</span>
-              <span>Posted: {createdAt.substring(0, 10)}</span>
-              <span>Status: {status}</span>
-              <span>Applicants: {applicants.length}</span>
+              <span>{job?.category}</span>
+              <span>Posted: {job?.createdAt.substring(0, 10)}</span>
+              <span>Status: {job?.status}</span>
+              <span>Applicants: {job?.applicants.length}</span>
             </p>
           </div>
           <div
@@ -141,30 +165,30 @@ const JobDescription = () => {
             className="basis-2/3 flex-1 flex flex-col justify-items-start"
           >
             <div id="name" className="flex flex-row justify-between">
-              <p className="font-bold">{ownerInfo.name}</p>
+              <p className="font-bold">{job?.ownerInfo.name}</p>
               <div className="flex flex-row">
                 <Rating
                   name="half-rating-read"
-                  value={job.ownerRating}
+                  value={job?.ownerRating}
                   precision={0.5}
                   readOnly
                 />
-                {job.ownerRating}
+                {job?.ownerRating}
               </div>
             </div>
             <div id="wage">
               <span>Hourly wage: </span>
-              {`${salaryStart} - ${salaryEnd} AUD/hour`}
+              {`${job?.salaryStart} - ${job?.salaryEnd} AUD/hour`}
             </div>
             <div id="location" className="flex flex-row justify-between">
-              <span>Location: {location}</span>
-              <span>Email: {ownerInfo.email}</span>
+              <span>Location: {job?.location}</span>
+              <span>Email: {job?.ownerInfo.email}</span>
             </div>
             <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-              {tags.length ? (
+              {job?.tags.length ? (
                 <>
                   <span>tags: </span>
-                  {tags.map((tag, index) => (
+                  {job?.tags.map((tag, index) => (
                     <Chip
                       key={index}
                       label={tag}
@@ -178,40 +202,50 @@ const JobDescription = () => {
           </div>
         </div>
         <div id="employeerPhoto" className="mt-10">
-          {job.photo == null ? (
-            <img key={id} src={defaultPhoto} alt="Default" />
+          {job?.image == null ? (
+            <img key={job.id} src={defaultPhoto} alt="Default" />
           ) : (
-            <img key={id} src={job.photo} alt="photo" />
+            <img
+              key={job?.id}
+              src={baseUrl + `/files/${job.image}`}
+              alt="photo"
+            />
           )}
         </div>
-        <div id="jobDetails" className="mt-10 text-justify">
-          {description}
+        <div
+          id="jobDetails"
+          className="mt-10 text-justify"
+          style={{ whiteSpace: "pre-wrap" }}
+        >
+          {/* <pre>{job?.description}</pre> */}
+          {job?.description}
         </div>
         <div id="review" className="mt-10 text-justify">
           <div className="text-lg font-semibold border-b border-b-zinc-600">
             Review
           </div>
-          {!reviews ? (
+          {employerRatings.length === 0 ? (
             <p>No reviews yet. Be the first to rate the employer!</p>
           ) : (
-            reviews.map((item) => (
+            employerRatings.map((item) => (
               <div
                 id={item.id}
                 key={item.id}
                 className="border-b border-b-zinc-300 mt-2"
+                style={{paddingBottom: '16px'}}
               >
-                Rating: {item.rating}
-                <div key={`pros${item.id}`}>
-                  Pros:{" "}
-                  {item.pros.map((item) => (
-                    <div className="ml-5">- {item}</div>
-                  ))}
-                </div>
-                <div key={`cons${item.id}`}>
-                  Cons:{" "}
-                  {item.cons.map((item) => (
-                    <div className="ml-5 mb-2">- {item}</div>
-                  ))}
+                Rating:
+                <Rate
+                  allowHalf
+                  defaultValue={item.rate}
+                  style={{ margin: "0 16px" }}
+                />
+                {item.rate}
+                <div style={{ marginTop: "16px" }}>
+                  from <b>{item.rater.name}</b>
+                  <div style={{ whiteSpace: "pre-wrap", marginTop: "16px" }}>
+                    {item.comment}
+                  </div>
                 </div>
               </div>
             ))
@@ -224,7 +258,39 @@ const JobDescription = () => {
       >
         <div className="p-2">
           <Stack direction="column" spacing={2}>
-            <Button variant="contained">Apply</Button>
+            <Button
+              variant="contained"
+              disabled={getButtonDisabled(userInfo, job)}
+              onClick={async () => {
+                if (!userInfo) {
+                  message.warning("Please login first to apply the job");
+                  navigate("/login");
+                  return;
+                }
+
+                if (userInfo.role === "employer") {
+                  message.warning("You cannot apply for this job");
+                  return;
+                }
+
+                try {
+                  const resp = await client.post("/applications/submit", {
+                    jobId: job.id,
+                    note: "",
+                  });
+                  console.log(resp.data);
+                  notification.success({
+                    placement: "bottomRight",
+                    message: "Applied",
+                    description: "Successfully submitted application",
+                  });
+                  setRefreshToken(Math.random());
+                } finally {
+                }
+              }}
+            >
+              {getButtonTitle(userInfo, job)}
+            </Button>
             <Button variant="contained" onClick={copyUrlToClipboard}>
               Refer to my friend
             </Button>

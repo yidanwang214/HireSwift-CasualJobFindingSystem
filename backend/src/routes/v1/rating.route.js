@@ -4,7 +4,7 @@ const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
 const { objectId } = require('../../validations/custom.validation');
 const catchAsync = require('../../utils/catchAsync');
-const { calcRatingById, addNewRating, getAllRatings } = require('../../services/rating.service');
+const { calcRatingById, addNewRating, getAllRatings, getRatingsByJobId } = require('../../services/rating.service');
 
 const router = express.Router();
 
@@ -50,6 +50,20 @@ router.get(
   catchAsync(async (req, res) => {
     const { userId } = req.query;
     const ret = await getAllRatings(userId);
+    res.send(ret);
+  })
+);
+
+router.get(
+  '/getAllRatingsByJobId',
+  validate({
+    query: Joi.object().keys({
+      jobId: Joi.string().custom(objectId).required(),
+    }),
+  }),
+  catchAsync(async (req, res) => {
+    const { jobId } = req.query;
+    const ret = await getRatingsByJobId(jobId);
     res.send(ret);
   })
 );

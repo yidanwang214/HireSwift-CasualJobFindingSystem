@@ -266,6 +266,8 @@ const JobTable = () => {
                     <Button
                       key="view"
                       type="link"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       href={`/jobdescription/${ent.id}`}
                     >
                       View
@@ -315,7 +317,7 @@ const JobTable = () => {
                     );
                   } else if (ent.status === "Finished") {
                     if (
-                      !ent.ratings &&
+                      !ent.ratings ||
                       ent.ratings.every((r) => r.raterId !== userInfo.id)
                     ) {
                       ret.push(
@@ -368,7 +370,7 @@ const JobTable = () => {
             title="View Appliants"
             open={isModalOpen}
             centered
-            width={1024}
+            width={1680}
             // closeIcon={false}
             maskClosable={false}
             footer={null}
@@ -414,7 +416,7 @@ const JobTable = () => {
                 {
                   title: "Actions",
                   key: "action",
-                  width: 200,
+                  // width: 200,
                   render: (_, ent) => {
                     return (
                       <Space size="small">
@@ -437,6 +439,7 @@ const JobTable = () => {
                               })
                               .then((resp) => {
                                 console.log("accepted: ", resp.data);
+                                tableRef.current?.reload();
                                 setModalOpen(false);
                               });
                           }}
