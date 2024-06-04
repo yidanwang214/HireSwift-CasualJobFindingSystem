@@ -4,7 +4,12 @@ const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
 const { objectId } = require('../../validations/custom.validation');
 const catchAsync = require('../../utils/catchAsync');
-const { getApplicationsByJobId, addNewApplication, acceptApplication } = require('../../services/application.service');
+const {
+  getApplicationsByJobId,
+  addNewApplication,
+  acceptApplication,
+  rejectApplication,
+} = require('../../services/application.service');
 
 const router = express.Router();
 
@@ -49,6 +54,21 @@ router.post(
   catchAsync(async (req, res) => {
     const { applicationId } = req.body;
     const ret = await acceptApplication(applicationId, req.user);
+    res.send(ret);
+  })
+);
+
+router.post(
+  '/reject',
+  auth('manageJobs'),
+  validate({
+    body: Joi.object().keys({
+      applicationId: Joi.string().custom(objectId).required(),
+    }),
+  }),
+  catchAsync(async (req, res) => {
+    const { applicationId } = req.body;
+    const ret = await rejectApplication(applicationId, req.user);
     res.send(ret);
   })
 );
