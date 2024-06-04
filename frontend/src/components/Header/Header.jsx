@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   AppBar,
   Box,
@@ -17,15 +17,11 @@ import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo-black.png";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../redux/userSlice";
 
 //Data to be collected from backend
-const pages = [
-  "Find talent",
-  "Find job",
-  "Why HireSwift",
-  "Enterprise",
-  "Sign in",
-];
+const pages = ["Find talent", "Find job", "Why HireSwift", "Enterprise"];
 const explore = [
   { title: "Discover", content: "Inspiring projects made on our platform" },
   { title: "Community", content: "Connect with our team and community" },
@@ -75,6 +71,10 @@ function ResponsiveAppBar() {
   const [anchorElPremiumMenu, setAnchorElPremiumMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const userInfo = useSelector((state) => state.user.userInfo);
+  const accessToken = useSelector((state) => state.user.accessToken);
+  const hasLogin = !!userInfo && !!accessToken;
+  const dispatch = useDispatch();
 
   const handleSearchInput = (e) => {
     setSearchQuery(e.target.value);
@@ -102,9 +102,9 @@ function ResponsiveAppBar() {
     setAnchorElPremiumMenu(null);
   };
 
-  const handleSubmit =  (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    navigate(`/joblist/?search=${searchQuery}`)
+    navigate(`/joblist/?search=${searchQuery}`);
   };
 
   return (
@@ -177,22 +177,43 @@ function ResponsiveAppBar() {
               </Button>
             ))}
             <Button
-              component={Link}
-              to="/signup"
-              variant="contained"
               sx={{
                 my: 2,
                 mx: 1,
-                color: "white",
-                backgroundColor: "#2196f3", // Lighter blue color
+                color: "black",
                 textTransform: "capitalize",
-                ":hover": {
-                  backgroundColor: "deepskyblue",
-                },
+              }}
+              onClick={() => {
+                if (hasLogin) {
+                  dispatch(logout());
+                  navigate("/login", { replace: true });
+                } else {
+                  navigate("/login");
+                }
               }}
             >
-              Join
+              {hasLogin ? "Logout" : "Login"}
             </Button>
+
+            {!hasLogin && (
+              <Button
+                component={Link}
+                to="/signup"
+                variant="contained"
+                sx={{
+                  my: 2,
+                  mx: 1,
+                  color: "white",
+                  backgroundColor: "#2196f3", // Lighter blue color
+                  textTransform: "capitalize",
+                  ":hover": {
+                    backgroundColor: "deepskyblue",
+                  },
+                }}
+              >
+                Join
+              </Button>
+            )}
           </Box>
         </Toolbar>
         <Divider sx={{ borderBottomWidth: 0.1, borderColor: "lightgray" }} />
