@@ -1,8 +1,10 @@
 import React from 'react';
 import { Box, Typography, Button, Container } from '@mui/material';
 import bgp from '../assets/bgp.jpg';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -32,6 +34,9 @@ const HeroSection = () => {
           color="primary"
           size="large"
           sx={{ textTransform: 'none' }} // Override text transformation to prevent all caps
+          onClick={() => {
+            navigate("/joblist");
+          }}
         >
           Get started
         </Button>
