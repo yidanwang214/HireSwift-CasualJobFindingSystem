@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import "./JobTable.css";
@@ -6,6 +12,8 @@ import client from "../../utils/request";
 import {
   Button,
   ConfigProvider,
+  Form,
+  Input,
   Modal,
   Popconfirm,
   Popover,
@@ -13,8 +21,9 @@ import {
   Space,
   Table,
   Tag,
+  message,
 } from "antd";
-import { ProProvider, ProTable } from "@ant-design/pro-components";
+import { ProTable } from "@ant-design/pro-components";
 import enGB from "antd/locale/en_GB";
 import "dayjs/locale/en-au";
 import { useSelector } from "react-redux";
@@ -29,18 +38,17 @@ const getStatusTagColor = (tag) => {
     return "";
   } else if (tag === "In progress") {
     return "volcano";
-  } else if ("Finished") {
+  } else if (tag === "Finished") {
     return "green";
   }
 
   if (tag === "Accepted") {
     return "green";
   } else if (tag === "Rejected") {
-    return "volcano";
+    return "red";
   } else if (tag === "Pending") {
     return "blue";
   }
-  return "green";
 };
 
 const ensureUndef = (str) => {
@@ -64,6 +72,9 @@ const JobTable = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [appModalLoading, setAppModalLoading] = useState(false);
   const [appliantsList, setAppliantsList] = useState([]);
+  const [isRateModalOpen, setRateModalOpen] = useState(false);
+  const [ratingForm] = Form.useForm();
+  const tableRef = useRef();
 
   useEffect(() => {
     if (!isModalOpen || !currentJobId) {
@@ -112,6 +123,7 @@ const JobTable = () => {
           }}
         >
           <ProTable
+            actionRef={tableRef}
             rowKey={"id"}
             request={async (params, _, filter) => {
               console.log(params, filter);
@@ -283,10 +295,42 @@ const JobTable = () => {
                   ) {
                     // employer choose to end the job
                     ret.push(
-                      <Button key="completed" type="link">
+                      <Button
+                        key="completed"
+                        type="link"
+                        onClick={async () => {
+                          const resp = await client.post(
+                            "/jobs/markAsComplete",
+                            {
+                              jobId: ent.id,
+                            }
+                          );
+                          console.log(resp.data);
+
+                          action?.reload();
+                        }}
+                      >
                         Mark as Completed
                       </Button>
                     );
+                  } else if (ent.status === "Finished") {
+                    if (
+                      !ent.ratings &&
+                      ent.ratings.every((r) => r.raterId !== userInfo.id)
+                    ) {
+                      ret.push(
+                        <Button
+                          key="rate"
+                          type="link"
+                          onClick={() => {
+                            setCurrentJobId(ent.id);
+                            setRateModalOpen(true);
+                          }}
+                        >
+                          Rate
+                        </Button>
+                      );
+                    }
                   }
 
                   if (
@@ -333,7 +377,7 @@ const JobTable = () => {
             }}
           >
             <Table
-              style={{ maxWidth: "1280px" }}
+              // style={{ maxWidth: "1280px" }}
               dataSource={appliantsList}
               loading={appModalLoading}
               pagination={false}
@@ -372,7 +416,6 @@ const JobTable = () => {
                   key: "action",
                   width: 200,
                   render: (_, ent) => {
-                    // TODO: the view profile should be a link opened at new page
                     return (
                       <Space size="small">
                         <Button
@@ -384,7 +427,37 @@ const JobTable = () => {
                         >
                           View Profile
                         </Button>
-                        <Button key="Reject" danger type="link">
+                        <Button
+                          key="accept"
+                          type="link"
+                          onClick={() => {
+                            client
+                              .post("/applications/accept", {
+                                applicationId: ent.id,
+                              })
+                              .then((resp) => {
+                                console.log("accepted: ", resp.data);
+                                setModalOpen(false);
+                              });
+                          }}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          key="Reject"
+                          danger
+                          type="link"
+                          onClick={() => {
+                            client
+                              .post("/applications/reject", {
+                                applicationId: ent.id,
+                              })
+                              .then((resp) => {
+                                console.log("rejected: ", resp.data);
+                                setModalOpen(false);
+                              });
+                          }}
+                        >
                           Reject
                         </Button>
                       </Space>
@@ -393,6 +466,83 @@ const JobTable = () => {
                 },
               ]}
             />
+          </Modal>
+          <Modal
+            title="Rate"
+            open={isRateModalOpen}
+            maskClosable={false}
+            centered
+            footer={null}
+            onCancel={() => {
+              setRateModalOpen(false);
+            }}
+            destroyOnClose
+            modalRender={(dom) => (
+              <Form
+                layout="vertical"
+                form={ratingForm}
+                name="form_in_modal"
+                clearOnDestroy
+                onFinish={async (values) => {
+                  try {
+                    const resp = await client.get(`/jobs/${currentJobId}`);
+                    const data = resp.data;
+                    console.log("laile!");
+                    console.log(resp.data);
+                    console.log(values);
+
+                    const myApp = data.applicants.find((s) => {
+                      if (userInfo.role === "employer") {
+                        return s.status === "Accepted";
+                      } else {
+                        return s.employeeId === userInfo.id;
+                      }
+                    });
+                    if (!myApp) {
+                      throw new Error("no valid applicant found");
+                    }
+
+                    let recipientId;
+                    if (userInfo.role === "employer") {
+                      recipientId = myApp.employeeId;
+                    } else {
+                      // employee
+                      recipientId = data.ownerInfo.id;
+                    }
+
+                    const applicationId = myApp.id;
+                    const jobId = data.id;
+
+                    await client.post("/rating/rate", {
+                      ...values,
+                      applicationId,
+                      jobId,
+                      recipientId,
+                    });
+                    setRateModalOpen(false);
+                  } catch (e) {
+                    console.error(e);
+                    message.error("failed to save rating information: " + e);
+                  } finally {
+                    tableRef.current?.reload();
+                  }
+                }}
+              >
+                {dom}
+              </Form>
+            )}
+          >
+            <Form.Item name="rate" label="Rating">
+              <Rate allowHalf />
+            </Form.Item>
+            <Form.Item name="comment" label="Comment">
+              <Input type="textarea" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block>
+                Submit
+              </Button>
+            </Form.Item>
           </Modal>
         </ConfigProvider>
       </Paper>
