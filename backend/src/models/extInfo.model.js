@@ -14,6 +14,8 @@ const extInfoSchema = mongoose.Schema(
     licenses: { type: String, trim: true },
     skills: { type: String, trim: true },
     languages: { type: String, trim: true },
+    companySize: { type: String, trim: true },
+    industry: { type: String, trim: true },
   },
   {
     timestamps: true,

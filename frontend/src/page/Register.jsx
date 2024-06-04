@@ -208,6 +208,11 @@ const Register = () => {
         );
         const loginData = await loginResponse.json();
         if (loginResponse.ok) {
+          const { user, tokens } = loginData;
+          const { access, refresh } = tokens;
+          localStorage.setItem("accessToken", access.token);
+          localStorage.setItem("refreshToken", refresh.token);
+          localStorage.setItem("user", JSON.stringify(user));
           dispatch(loginSuccess(loginData));
           navigate("/", {replace: true});
         } else {

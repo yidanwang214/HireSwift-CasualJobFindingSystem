@@ -10,6 +10,8 @@ const UserProfile = () => {
   const [userInfo, setUserInfo] = useState();
   const { userId } = useParams();
 
+  const isEmployer = userInfo?.role === "employer";
+
   useEffect(() => {
     const ac = new AbortController();
 
@@ -88,140 +90,218 @@ const UserProfile = () => {
             />
           </EditableInfoCard>
         </div>
-        <div className="md:col-span-2">
-          <EditableInfoCard
-            title="Title"
-            value={userInfo?.title}
-            onUpdate={(e) => updateUserInfo("title", e)}
-            onSave={() => saveUserInfo("title")}
-            readonly={!!userId}
-          >
-            <textarea
-              value={userInfo?.title}
-              className="border p-2 rounded w-full mt-2"
-            />
-          </EditableInfoCard>
-        </div>
-        <div className="md:col-span-1">
-          <EditableInfoCard
-            title="Location"
-            value={userInfo?.location}
-            onSave={(value) => updateUserInfo("location", value)}
-            readonly={!!userId}
-          >
-            <input
-              type="text"
-              value={userInfo?.location}
-              onChange={(e) => updateUserInfo("location", e.target.value)}
-              className="border p-2 rounded w-full mt-2"
-            />
-          </EditableInfoCard>
-        </div>
-        <div className="md:col-span-2">
-          <EditableInfoCard
-            title="Hourly Rate"
-            value={`$${userInfo?.hourlyRate ?? 0}/hr`}
-            readonly={!!userId}
-            onSave={(value) =>
-              updateUserInfo(
-                "hourlyRate",
-                parseFloat(value.replace(/[^0-9.]/g, "")).toFixed(2)
-              )
-            }
-          >
-            <input
-              type="text"
-              value={`$${userInfo?.hourlyRate ?? 0}/hr`}
-              onChange={(e) =>
-                updateUserInfo(
-                  "hourlyRate",
-                  e.target.value.replace(/[^0-9.]/g, "")
-                )
-              }
-              className="border p-2 rounded w-full mt-2"
-            />
-          </EditableInfoCard>
-        </div>
-        <div className="md:col-span-1">
-          <EditableInfoCard
-            title="Hours per Week"
-            value={userInfo?.hoursPerWeek}
-            onSave={(value) => updateUserInfo("hoursPerWeek", value)}
-            readonly={!!userId}
-          >
-            <input
-              type="text"
-              value={userInfo?.hoursPerWeek}
-              onChange={(e) => updateUserInfo("hoursPerWeek", e.target.value)}
-              className="border p-2 rounded w-full mt-2"
-            />
-          </EditableInfoCard>
-        </div>
-        <div className="md:col-span-2">
-          <EditableInfoCard
-            title="Education"
-            value={userInfo?.education}
-            onSave={(value) => updateUserInfo("education", value)}
-            readonly={!!userId}
-          >
-            <textarea
-              value={userInfo?.education}
-              onChange={(e) => updateUserInfo("education", e.target.value)}
-              className="border p-2 rounded w-full mt-2"
-            />
-          </EditableInfoCard>
-        </div>
-        <div className="md:col-span-1">
-          <EditableInfoCard
-            title="Licenses"
-            value={userInfo?.licenses}
-            onSave={(value) => updateUserInfo("licenses", value)}
-            readonly={!!userId}
-          >
-            <textarea
-              value={userInfo?.licenses}
-              onChange={(e) => updateUserInfo("licenses", e.target.value)}
-              className="border p-2 rounded w-full mt-2"
-            />
-          </EditableInfoCard>
-        </div>
-        <div className="md:col-span-2">
-          <EditableInfoCard
-            title="Skills"
-            value={userInfo?.skills}
-            onSave={(value) => updateUserInfo("skills", value)}
-            readonly={!!userId}
-          >
-            <textarea
-              value={userInfo?.skills}
-              onChange={(e) => updateUserInfo("skills", e.target.value)}
-              className="border p-2 rounded w-full mt-2"
-            />
-          </EditableInfoCard>
-        </div>
-        <div className="md:col-span-1">
-          <EditableInfoCard
-            title="Languages"
-            value={userInfo?.languages}
-            readonly={!!userId}
-            onSave={() => {
-              /* Handle save */
-            }}
-          >
-            <div style={{ maxHeight: "100px", overflowY: "auto" }}>
-              <div className="mt-2">
+        {isEmployer && (
+          <>
+            <div className="md:col-span-2">
+              <EditableInfoCard
+                title="Company Size"
+                value={userInfo?.companySize}
+                onSave={(value) => updateUserInfo("companySize", value)}
+              >
                 <input
                   type="text"
-                  value={userInfo?.languages}
-                  onChange={(e) => {
-                    updateUserInfo("languages", e.target.value);
-                  }}
-                  className="border p-2 rounded w-full"
+                  value={userInfo?.companySize}
+                  onChange={(e) =>
+                    updateUserInfo("companySize", e.target.value)
+                  }
+                  className="border p-2 rounded w-full mt-2"
                 />
-              </div>
+              </EditableInfoCard>
             </div>
-          </EditableInfoCard>
-        </div>
+            <div className="md:col-span-1">
+              <EditableInfoCard
+                title="Industry"
+                value={userInfo?.industry}
+                onSave={(value) => updateUserInfo("industry", value)}
+              >
+                <input
+                  type="text"
+                  value={userInfo?.industry}
+                  onChange={(e) => updateUserInfo("industry", e.target.value)}
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-2">
+              <EditableInfoCard
+                title="Location"
+                value={userInfo?.location}
+                onSave={(value) => updateUserInfo("location", value)}
+              >
+                <input
+                  type="text"
+                  value={userInfo?.location}
+                  onChange={(e) => updateUserInfo("location", e.target.value)}
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-1">
+              <EditableInfoCard
+                title="Languages"
+                value={userInfo?.languages}
+                onSave={() => {
+                  /* Handle save */
+                }}
+              >
+                <div style={{ maxHeight: "100px", overflowY: "auto" }}>
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      value={userInfo?.language}
+                      onChange={(e) => {
+                        const newLanguages = [...employerInfo.languages];
+                        newLanguages[index].language = e.target.value;
+                        updateUserInfo("languages", newLanguages);
+                      }}
+                      className="border p-2 rounded w-full"
+                    />
+                  </div>
+                </div>
+              </EditableInfoCard>
+            </div>
+          </>
+        )}
+        {!isEmployer && (
+          <>
+            <div className="md:col-span-2">
+              <EditableInfoCard
+                title="Title"
+                value={userInfo?.title}
+                onUpdate={(e) => updateUserInfo("title", e)}
+                onSave={() => saveUserInfo("title")}
+                readonly={!!userId}
+              >
+                <textarea
+                  value={userInfo?.title}
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-1">
+              <EditableInfoCard
+                title="Location"
+                value={userInfo?.location}
+                onSave={(value) => updateUserInfo("location", value)}
+                readonly={!!userId}
+              >
+                <input
+                  type="text"
+                  value={userInfo?.location}
+                  onChange={(e) => updateUserInfo("location", e.target.value)}
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-2">
+              <EditableInfoCard
+                title="Hourly Rate"
+                value={`$${userInfo?.hourlyRate ?? 0}/hr`}
+                readonly={!!userId}
+                onSave={(value) =>
+                  updateUserInfo(
+                    "hourlyRate",
+                    parseFloat(value.replace(/[^0-9.]/g, "")).toFixed(2)
+                  )
+                }
+              >
+                <input
+                  type="text"
+                  value={`$${userInfo?.hourlyRate ?? 0}/hr`}
+                  onChange={(e) =>
+                    updateUserInfo(
+                      "hourlyRate",
+                      e.target.value.replace(/[^0-9.]/g, "")
+                    )
+                  }
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-1">
+              <EditableInfoCard
+                title="Hours per Week"
+                value={userInfo?.hoursPerWeek}
+                onSave={(value) => updateUserInfo("hoursPerWeek", value)}
+                readonly={!!userId}
+              >
+                <input
+                  type="text"
+                  value={userInfo?.hoursPerWeek}
+                  onChange={(e) =>
+                    updateUserInfo("hoursPerWeek", e.target.value)
+                  }
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-2">
+              <EditableInfoCard
+                title="Education"
+                value={userInfo?.education}
+                onSave={(value) => updateUserInfo("education", value)}
+                readonly={!!userId}
+              >
+                <textarea
+                  value={userInfo?.education}
+                  onChange={(e) => updateUserInfo("education", e.target.value)}
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-1">
+              <EditableInfoCard
+                title="Licenses"
+                value={userInfo?.licenses}
+                onSave={(value) => updateUserInfo("licenses", value)}
+                readonly={!!userId}
+              >
+                <textarea
+                  value={userInfo?.licenses}
+                  onChange={(e) => updateUserInfo("licenses", e.target.value)}
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-2">
+              <EditableInfoCard
+                title="Skills"
+                value={userInfo?.skills}
+                onSave={(value) => updateUserInfo("skills", value)}
+                readonly={!!userId}
+              >
+                <textarea
+                  value={userInfo?.skills}
+                  onChange={(e) => updateUserInfo("skills", e.target.value)}
+                  className="border p-2 rounded w-full mt-2"
+                />
+              </EditableInfoCard>
+            </div>
+            <div className="md:col-span-1">
+              <EditableInfoCard
+                title="Languages"
+                value={userInfo?.languages}
+                readonly={!!userId}
+                onSave={() => {
+                  /* Handle save */
+                }}
+              >
+                <div style={{ maxHeight: "100px", overflowY: "auto" }}>
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      value={userInfo?.languages}
+                      onChange={(e) => {
+                        updateUserInfo("languages", e.target.value);
+                      }}
+                      className="border p-2 rounded w-full"
+                    />
+                  </div>
+                </div>
+              </EditableInfoCard>
+            </div>
+          </>
+        )}
       </div>
       <RatingHistory ratings={userInfo?.ratings ?? []} />
     </div>

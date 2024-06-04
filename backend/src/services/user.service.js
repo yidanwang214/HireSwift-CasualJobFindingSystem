@@ -18,7 +18,9 @@ const createUser = async (userBody) => {
     location: 'Adelaide, Australia',
     localTime: 'GMT+9:30',
     introduction:
-      'An experienced web designer with a passion for creating visually appealing and user-friendly websites. Skilled in Ajax, React, and various other web technologies. Dedicated to delivering high-quality work and ensuring client satisfaction.',
+      userBody.role === 'employer'
+        ? 'We are a leading company in web development, providing top-notch services for over 10 years. Our team is dedicated to delivering high-quality projects on time and within budget.'
+        : 'An experienced web designer with a passion for creating visually appealing and user-friendly websites. Skilled in Ajax, React, and various other web technologies. Dedicated to delivering high-quality work and ensuring client satisfaction.',
     title: 'Expert Web Designer with Ajax experience',
     hourlyRate: 70,
     hoursPerWeek: 'More than 30 hrs/week',
@@ -26,6 +28,8 @@ const createUser = async (userBody) => {
     licenses: 'Certified Web Developer',
     skills: 'Web Design, React, JavaScript, CSS, HTML, Ajax',
     languages: 'English (Fluent)',
+    companySize: '50 - 100 employees',
+    industry: 'Information Technology',
   });
   await extInfo.save();
 

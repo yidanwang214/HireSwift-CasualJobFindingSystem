@@ -33,7 +33,22 @@ router.get(
 router.post(
   '/update',
   auth(),
-  validate({ body: Joi.object().keys({}) }),
+  validate({
+    body: Joi.object().keys({
+      location: Joi.string().allow('', null),
+      localTime: Joi.string().allow('', null),
+      introduction: Joi.string().allow('', null),
+      title: Joi.string().allow('', null),
+      hourlyRate: Joi.number(),
+      hoursPerWeek: Joi.string().allow('', null),
+      education: Joi.string().allow('', null),
+      licenses: Joi.string().allow('', null),
+      skills: Joi.string().allow('', null),
+      languages: Joi.string().allow('', null),
+      companySize: Joi.string().allow('', null),
+      industry: Joi.string().allow('', null),
+    }),
+  }),
   catchAsync(async (req, res) => {
     const ret = await updateExtInfo(req.user, req.body);
     res.send(ret);
