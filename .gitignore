@@ -17,4 +17,4 @@ coverage
 
 # Ignore specific folders
 MinetesAndAgenda/
-Timesheet/
+Timesheet//frontend/dist/
