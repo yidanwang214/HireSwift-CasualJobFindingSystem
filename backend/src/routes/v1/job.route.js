@@ -46,17 +46,18 @@ const jobUpdateVad = {
 const jobSearchVad = {
   body: Joi.object().keys({
     query: Joi.object().keys({
-      search: Joi.string(),
-      tag: Joi.string(),
+      search: Joi.string().allow('', null),
+      tag: Joi.string().allow('', null),
       status: Joi.string().valid('Opening', 'Closed', 'In progress', 'Finished'),
-      salary: Joi.number(),
-      location: Joi.string(),
+      salaryStart: Joi.number(),
+      salaryEnd: Joi.number(),
+      location: Joi.string().allow('', null),
       updatedStart: Joi.number(),
       updatedEnd: Joi.number(),
       categoryId: Joi.number(),
     }),
     page: Joi.number().positive(),
-    limit: Joi.number().positive().less(100),
+    limit: Joi.number().positive().max(100),
   }),
 };
 

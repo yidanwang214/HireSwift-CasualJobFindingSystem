@@ -1,10 +1,17 @@
 const httpStatus = require('http-status');
 const ApplicationModel = require('../models/application.model');
+const JobModel = require('../models/job.model');
 const ApiError = require('../utils/ApiError');
+const { getUserById } = require('./user.service');
+const { calcRatingById } = require('./rating.service');
 
 const addNewApplication = async (applicationInfo, user) => {
   if (user.role !== 'employee') {
     throw new ApiError(httpStatus.BAD_REQUEST, 'only employee can apply for a job');
+  }
+  const job = await JobModel.findById(applicationInfo.jobId).exec();
+  if (!job || job.status !== 'Opening') {
+    throw new ApiError(httpStatus.BAD_REQUEST, `job ${job.title} is not accepting applicants`);
   }
   const appModel = new ApplicationModel({ ...applicationInfo, employeeId: user._id, status: 'Pending' });
   const ret = await appModel.save();
@@ -19,7 +26,11 @@ const acceptApplication = async (applicationId, user) => {
   app.status = 'Accepted';
   await app.save();
   // reject all others applies
-  ApplicationModel.updateMany({ jobId: app.jobId }, { status: 'Rejected' });
+  await ApplicationModel.updateMany({ jobId: app.jobId, _id: { $ne: applicationId } }, { status: 'Rejected' });
+
+  // job in progress
+  await JobModel.findByIdAndUpdate(app.jobId, { status: 'In progress' });
+
   return app._id;
 };
 
@@ -35,7 +46,20 @@ const rejectApplication = async (applicationId, user) => {
 };
 
 const getApplicationsByJobId = async (jobId) => {
-  return ApplicationModel.find({ jobId }).exec();
+  const ret = (await ApplicationModel.find({ jobId }).exec()).map((r) => r.toJSON());
+  for (let i = 0; i < ret.length; i += 1) {
+    const app = ret[i];
+    app.employee = await getUserById(app.employeeId);
+    app.employeeRating = await calcRatingById(app.employeeId);
+  }
+  // employee name
+  // employee rating
+  // employee history
+  return ret;
+};
+
+const getApplicationsByUserId = async (userId) => {
+  return ApplicationModel.find({ employeeId: userId }).exec();
 };
 
 const findApplications = async (searchInfo = {}, options = { page: 1, limit: 10 }) => {
@@ -71,4 +95,5 @@ module.exports = {
   rejectApplication,
   findApplications,
   getApplicationsByJobId,
+  getApplicationsByUserId,
 };

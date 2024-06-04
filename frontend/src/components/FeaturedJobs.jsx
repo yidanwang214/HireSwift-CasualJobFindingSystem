@@ -10,7 +10,7 @@ const jobs = [
 const FeaturedJobs = () => {
   return (
     <Container maxWidth='xl' sx={{ py: 5 }}>
-      <Typography variant="h4" component="h2" align="center" gutterBottom>
+      <Typography variant="h4" component="h2" align="center" gutterBottom sx={{ mb: 4 }}>
         Featured Jobs
       </Typography>
       <Grid container spacing={4}>

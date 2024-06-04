@@ -10,6 +10,9 @@ import { useSelector } from "react-redux";
 import JobList from "./page/JobList";
 import JobDescription from "./page/JobDescription";
 import "./index.css";
+import UserProfile from './components/UserProfile/UserProfile';
+import EmployerProfile from './components/EmployerProfile/EmployerProfile';
+import AboutUs from "./page/AboutUs";
 
 function App() {
   const accessToken = useSelector((state) => state.user.accessToken);
@@ -23,14 +26,17 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="signup" element={<Register />} />
-          <Route path="/joblist/" element={<JobList />} />
+          <Route path="/joblist" element={<JobList />} />
           <Route path="/jobdescription/:jobid" element={<JobDescription />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="login" element={<Login />} />
           <Route
             path="myjobs"
             element={isAuthenticate ? <MyJob /> : <Login />}
           />
-          <Route path="/profile/:userId" element={<div></div>} />
+          <Route path="/profile/:userId" element={<UserProfile />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/employer-profile" element={<EmployerProfile />} />
+          <Route path="/aboutus" element={<AboutUs />} />
         </Routes>
       </div>
       <Footer />
