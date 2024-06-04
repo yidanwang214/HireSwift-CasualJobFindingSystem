@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
+const ExtInfoModel = require('../models/extInfo.model');
 
 /**
  * Create a user
@@ -11,7 +12,24 @@ const createUser = async (userBody) => {
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  return User.create(userBody);
+  const ret = await User.create(userBody);
+  const extInfo = new ExtInfoModel({
+    userId: ret._id,
+    location: 'Adelaide, Australia',
+    localTime: 'GMT+9:30',
+    introduction:
+      'An experienced web designer with a passion for creating visually appealing and user-friendly websites. Skilled in Ajax, React, and various other web technologies. Dedicated to delivering high-quality work and ensuring client satisfaction.',
+    title: 'Expert Web Designer with Ajax experience',
+    hourlyRate: 70,
+    hoursPerWeek: 'More than 30 hrs/week',
+    education: 'Master of Computing and Innovation, University of Adelaide',
+    licenses: 'Certified Web Developer',
+    skills: 'Web Design, React, JavaScript, CSS, HTML, Ajax',
+    languages: 'English (Fluent)',
+  });
+  await extInfo.save();
+
+  return ret;
 };
 
 /**

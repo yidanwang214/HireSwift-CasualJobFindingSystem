@@ -209,7 +209,7 @@ const Register = () => {
         const loginData = await loginResponse.json();
         if (loginResponse.ok) {
           dispatch(loginSuccess(loginData));
-          navigate("/myprofile");
+          navigate("/", {replace: true});
         } else {
           setErrMsg(loginData.message || "Login failed after registration");
           dispatch(

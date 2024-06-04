@@ -33,7 +33,7 @@ function App() {
             path="myjobs"
             element={isAuthenticate ? <MyJob /> : <Login />}
           />
-          <Route path="/profile/:userId" element={<div></div>} />
+          <Route path="/profile/:userId" element={<UserProfile />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/employer-profile" element={<EmployerProfile />} />
           <Route path="/aboutus" element={<AboutUs />} />
