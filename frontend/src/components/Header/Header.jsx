@@ -5,6 +5,8 @@ import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo-black.png';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../redux/userSlice';
 
 //Data to be collected from backend
 const pages = [
@@ -59,15 +61,15 @@ function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElExploreMenu, setAnchorElExploreMenu] = useState(null);
     const [anchorElPremiumMenu, setAnchorElPremiumMenu] = useState(null);
-    const [isLogin, setIsLogin] = useState(!!localStorage.getItem('accessToken'));
     const navigate = useNavigate();
+    const userInfo = useSelector(state => state.user.userInfo);
+    const accessToken = useSelector(state => state.user.accessToken);
+    const isLogin = userInfo && accessToken;
+    const dispatch = useDispatch();
 
     const handleLogout = () => {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
-        localStorage.removeItem("refreshToken");
-        setIsLogin(false);
-        useNavigate('/login');
+        dispatch(logout());
+        navigate('/login');
     };
 
     const handleOpenNavMenu = (event) => {
@@ -147,22 +149,24 @@ function ResponsiveAppBar() {
                             <Link to="/login">Login</Link>
                             </Button>
                         )}
-                        <Button
-                            component={Link}
-                            to="/signup"
-                            variant="contained"
-                            sx={{
-                                my: 2, mx: 1,
-                                color: 'white',
-                                backgroundColor: '#2196f3', // Lighter blue color
-                                textTransform: 'capitalize',
-                                ':hover': {
-                                    backgroundColor: 'deepskyblue',
-                                },
-                            }}
-                        >
-                            Join
-                        </Button>
+                        {
+                          !isLogin && <Button
+                              component={Link}
+                              to="/signup"
+                              variant="contained"
+                              sx={{
+                                  my: 2, mx: 1,
+                                  color: 'white',
+                                  backgroundColor: '#2196f3', // Lighter blue color
+                                  textTransform: 'capitalize',
+                                  ':hover': {
+                                      backgroundColor: 'deepskyblue',
+                                  },
+                              }}
+                          >
+                              Join
+                          </Button>
+                        }
                     </Box>
                 </Toolbar>
                 <Divider sx={{ borderBottomWidth: 0.1, borderColor: 'lightgray' }} />

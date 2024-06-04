@@ -9,6 +9,7 @@ import {
   Modal,
   Popconfirm,
   Popover,
+  Rate,
   Space,
   Table,
   Tag,
@@ -28,6 +29,16 @@ const getStatusTagColor = (tag) => {
     return "";
   } else if (tag === "In progress") {
     return "volcano";
+  } else if ("Finished") {
+    return "green";
+  }
+
+  if (tag === "Accepted") {
+    return "green";
+  } else if (tag === "Rejected") {
+    return "volcano";
+  } else if (tag === "Pending") {
+    return "blue";
   }
   return "green";
 };
@@ -210,6 +221,31 @@ const JobTable = () => {
                 dataIndex: "location",
               },
               {
+                title: "Applications",
+                dataIndex: "applicants",
+                render: (_, ent) => {
+                  if (userInfo.role === "employee") {
+                    const myApp = ent.applicants.find(
+                      (s) => s.employeeId === userInfo.id
+                    );
+                    if (!myApp) {
+                      return "";
+                    }
+                    return (
+                      <Tag
+                        key={`tag_${myApp.id}`}
+                        color={getStatusTagColor(myApp.status)}
+                      >
+                        {myApp.status}
+                      </Tag>
+                    );
+                  } else {
+                    return ent.applicants.length;
+                  }
+                },
+                search: false,
+              },
+              {
                 title: "Actions",
                 valueType: "option",
                 key: "option",
@@ -296,23 +332,18 @@ const JobTable = () => {
               setModalOpen(false);
             }}
           >
-            <Button
-              onClick={() => {
-                setModalOpen(false);
-              }}
-            >
-              Close
-            </Button>
             <Table
               style={{ maxWidth: "1280px" }}
               dataSource={appliantsList}
               loading={appModalLoading}
-              pagination={null}
+              pagination={false}
+              rowKey={"id"}
               // [{"status":"Accepted","jobId":"665c61bf3ea51933ad6f58dc","note":"","employeeId":"665b0c2d2a3461265d6a609a","createdAt":"2024-06-02T13:58:25.837Z","updatedAt":"2024-06-02T14:03:31.044Z","id":"665c7a81e1708e4ab53840f6"}]
               columns={[
                 {
-                  title: "Employee",
-                  dataIndex: "employeeId",
+                  title: "Applicant",
+                  dataIndex: "employee.name",
+                  render: (_, ent) => ent.employee.name,
                 },
                 {
                   title: "Note",
@@ -331,7 +362,10 @@ const JobTable = () => {
                 },
                 {
                   title: "Rating",
-                  dataIndex: "rating",
+                  dataIndex: "employeeRating",
+                  render: (v) => {
+                    return <Rate disabled defaultValue={v} />;
+                  },
                 },
                 {
                   title: "Actions",
@@ -341,7 +375,13 @@ const JobTable = () => {
                     // TODO: the view profile should be a link opened at new page
                     return (
                       <Space size="small">
-                        <Button key="View Profile" type="link">
+                        <Button
+                          key="View Profile"
+                          type="link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={`/profile/${ent.employeeId}`}
+                        >
                           View Profile
                         </Button>
                         <Button key="Reject" danger type="link">

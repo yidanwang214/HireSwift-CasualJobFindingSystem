@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const JobModel = require('../models/job.model');
 const ApiError = require('../utils/ApiError');
+const { getApplicationsByUserId } = require('./application.service');
 
 const findJobById = async (jobId) => {
   return JobModel.findById(jobId)
@@ -43,13 +44,17 @@ const escapeRegExp = (str) => {
   return str.replace(/[\^$\\.*+?()[\]{}|]/g, '\\$&');
 };
 
-const findJobs = async (userId, searchInfo = {}, options = { page: 1, limit: 10 }) => {
+const findJobs = async (user, searchInfo = {}, options = { page: 1, limit: 10 }) => {
   const { search, tag, status, salaryStart, salaryEnd, location, updatedStart, updatedEnd, categoryId } = searchInfo;
   const filter = {};
   if (search) {
     const searchTerm = escapeRegExp(search);
-    // eslint-disable-next-line security/detect-non-literal-regexp
-    filter.$or = [{ title: { $regex: new RegExp(searchTerm) } }, { description: { $regex: new RegExp(searchTerm) } }];
+    filter.$or = [
+      // eslint-disable-next-line security/detect-non-literal-regexp
+      { title: { $regex: new RegExp(searchTerm, 'i') } },
+      // eslint-disable-next-line security/detect-non-literal-regexp
+      { description: { $regex: new RegExp(searchTerm, 'i') } },
+    ];
   }
   if (tag) {
     filter.tags = tag;
@@ -64,10 +69,18 @@ const findJobs = async (userId, searchInfo = {}, options = { page: 1, limit: 10 
     filter.salaryEnd = { $gte: salaryStart };
   }
   if (location) {
-    filter.location = location;
+    const locationTerm = escapeRegExp(location);
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    filter.location = { $regex: new RegExp(locationTerm, 'i') };
   }
-  if (userId) {
-    filter.ownerId = userId;
+  if (user) {
+    if (user.role === 'employer') {
+      filter.ownerId = user._id;
+    } else {
+      // employee
+      const allApps = await getApplicationsByUserId(user._id);
+      filter._id = { $in: allApps.map((a) => a.jobId) };
+    }
   }
   if (categoryId) {
     filter.categoryId = categoryId;

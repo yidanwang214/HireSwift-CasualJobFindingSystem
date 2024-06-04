@@ -2,6 +2,8 @@ const httpStatus = require('http-status');
 const ApplicationModel = require('../models/application.model');
 const JobModel = require('../models/job.model');
 const ApiError = require('../utils/ApiError');
+const { getUserById } = require('./user.service');
+const { calcRatingById } = require('./rating.service');
 
 const addNewApplication = async (applicationInfo, user) => {
   if (user.role !== 'employee') {
@@ -25,6 +27,10 @@ const acceptApplication = async (applicationId, user) => {
   await app.save();
   // reject all others applies
   ApplicationModel.updateMany({ jobId: app.jobId }, { status: 'Rejected' });
+
+  // job in progress
+  JobModel.findByIdAndUpdate(app.jobId, { status: 'In progress' });
+
   return app._id;
 };
 
@@ -40,10 +46,21 @@ const rejectApplication = async (applicationId, user) => {
 };
 
 const getApplicationsByJobId = async (jobId) => {
-  // TODO: employee name
+  const ret = (await ApplicationModel.find({ jobId }).exec()).map((r) => r.toJSON());
+  for (let i = 0; i < ret.length; i += 1) {
+    const app = ret[i];
+    app.employee = await getUserById(app.employeeId);
+    app.employeeRating = await calcRatingById(app.employeeId);
+  }
+  console.log(ret);
+  // employee name
   // employee rating
   // employee history
-  return ApplicationModel.find({ jobId }).exec();
+  return ret;
+};
+
+const getApplicationsByUserId = async (userId) => {
+  return ApplicationModel.find({ employeeId: userId }).exec();
 };
 
 const findApplications = async (searchInfo = {}, options = { page: 1, limit: 10 }) => {
@@ -79,4 +96,5 @@ module.exports = {
   rejectApplication,
   findApplications,
   getApplicationsByJobId,
+  getApplicationsByUserId,
 };

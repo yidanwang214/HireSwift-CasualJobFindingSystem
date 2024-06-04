@@ -112,7 +112,7 @@ const Login = () => {
       setPassword("");
       setIsNameTyped(false);
       setIsPwdTyped(false);
-      navigate("/myprofile", { replace: true });
+      navigate("/myjobs", { replace: true });
       // } else {
       //   dispatch(loginFailure(data.message || "An unexpected error occurred"));
       // }
