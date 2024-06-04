@@ -18,6 +18,10 @@ const getAllRatings = async (userId) => {
   return RatingModel.find({ recipientId: userId }).exec();
 };
 
+const getRatingsByJobId = async (jobId) => {
+  return RatingModel.find({ jobId }).exec();
+};
+
 const findRatings = async (searchInfo = {}, options = { page: 1, limit: 10 }) => {
   const { recipientId, applicationId, updatedStart, updatedEnd } = searchInfo;
   const filter = {};
@@ -62,4 +66,5 @@ module.exports = {
   findRatings,
   calcRatingById,
   getAllRatings,
+  getRatingsByJobId,
 };

@@ -3,7 +3,7 @@ const catchAsync = require('../utils/catchAsync');
 const { findJobById, deleteJobById, addNewJob, findJobs, updateJobById } = require('../services/job.service');
 const { getUserById } = require('../services/user.service');
 const categories = require('../models/categories.mock');
-const { calcRatingById } = require('../services/rating.service');
+const { calcRatingById, getRatingsByJobId } = require('../services/rating.service');
 const { getApplicationsByJobId } = require('../services/application.service');
 
 const listJob = catchAsync(async (req, res) => {
@@ -20,6 +20,7 @@ const listJob = catchAsync(async (req, res) => {
       // applications information
       item.applicants = await getApplicationsByJobId(item.id);
       item.category = categories.get(item.categoryId ?? 0);
+      item.ratings = await getRatingsByJobId(item.id);
     }
   }
   res.send(ret);
@@ -35,6 +36,7 @@ const getJobById = catchAsync(async (req, res) => {
     job.ownerInfo = await getUserById(job.ownerId);
     job.ownerRating = await calcRatingById(job.ownerId);
     job.applicants = await getApplicationsByJobId(job.id);
+    job.ratings = await getRatingsByJobId(job.id);
     res.send(job);
   }
 });

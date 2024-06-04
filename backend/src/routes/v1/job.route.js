@@ -4,6 +4,8 @@ const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
 const { objectId } = require('../../validations/custom.validation');
 const JobController = require('../../controllers/job.controller');
+const catchAsync = require('../../utils/catchAsync');
+const JobModel = require('../../models/job.model');
 
 const router = express.Router();
 
@@ -65,6 +67,20 @@ router.post('/create', auth('manageJobs'), validate(jobCreateVad), JobController
 router.put('/create', auth('manageJobs'), validate(jobCreateVad), JobController.createJob);
 router.post('/update', auth('manageJobs'), validate(jobUpdateVad), JobController.updateJob);
 router.post('/list', auth(), validate(jobSearchVad), JobController.listJob);
+
+router.post(
+  '/markAsComplete',
+  auth('manageJobs'),
+  validate({
+    body: Joi.object().keys({
+      jobId: Joi.string().custom(objectId).required(),
+    }),
+  }),
+  catchAsync(async (req, res) => {
+    const { jobId } = req.body;
+    res.send(await JobModel.findByIdAndUpdate(jobId, { status: 'Finished' }).exec());
+  })
+);
 
 router
   .route('/:jobId')
