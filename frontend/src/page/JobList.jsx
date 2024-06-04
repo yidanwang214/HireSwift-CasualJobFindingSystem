@@ -283,8 +283,67 @@ const truncateDescription = (text, wordLimit) => {
 };
 
 const JobList = () => {
-    // Create a state that holds the expansion status of each accordion
-    const [expanded, setExpanded] = useState([]);
+  // Create a state that holds the expansion status of each accordion
+  const [expanded, setExpanded] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+
+  const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+  };
+  const queryParams = useQuery();
+  const searchQuery = queryParams.get("search");
+
+  const findKeyword = (targets, keywords) => {
+    if (typeof targets === "string") {
+      return targets.includes(keywords);
+    } else {
+      return targets.some((target) => target.includes(keywords));
+    }
+  };
+
+  const filterJob = (results, query) => {
+    return results.filter((result) => {
+      const category = result.category.toLowerCase().trim() || "";
+      const location = result.location.toLowerCase().trim() || "";
+      const description = result.description.toLowerCase().trim() || "";
+      const title = result.title.toLowerCase().trim() || "";
+      const tags =
+        result.tags.map((tag) => {
+          return tag.toLowerCase().trim();
+        }) || [];
+      console.log("this is tag: ", tags);
+      return (
+        findKeyword(category, query) ||
+        findKeyword(location, query) ||
+        findKeyword(description, query) ||
+        findKeyword(title, query) ||
+        findKeyword(tags, query)
+      );
+    });
+  };
+
+  const fetchData = async () => {
+    let jobShown;
+    try {
+      const response = await client.post("/jobs/list", {
+        page: 1,
+        limit: 99,
+      });
+      if (searchQuery) {
+        jobShown = filterJob(response.data.results, searchQuery);
+      } else {
+        jobShown = response.data.results;
+      }
+
+      setFilteredJobs(jobShown);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [searchQuery]);
 
     // Set all accordion panels to be expanded by default
     useEffect(() => {
