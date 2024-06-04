@@ -344,21 +344,32 @@ const JobList = () => {
   };
 
   const fetchData = async () => {
-    let jobShown;
-    try {
-      const response = await client.post("/jobs/list", {
-        page: 1,
-        limit: 99,
-      });
-      if (searchQuery) {
-        jobShown = filterJob(response.data.results, searchQuery);
-      } else {
-        jobShown = response.data.results;
-      }
+    if (searchQuery) {
+      try {
+        const response = await client.post("/jobs/list", {
+          query: {
+            search: searchQuery,
+            //categoryId: to be handled,
+          },
+          page: 1,
+          limit: 99,
+        });
 
-      setFilteredJobs(jobShown);
-    } catch (err) {
-      console.log(err);
+        setFilteredJobs(response.data.results);
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      try {
+        const response = await client.post("/jobs/list", {
+          page: 1,
+          limit: 99,
+        });
+
+        setFilteredJobs(response.data.results);
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 

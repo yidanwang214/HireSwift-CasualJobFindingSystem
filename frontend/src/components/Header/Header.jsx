@@ -11,13 +11,14 @@ import {
   MenuItem,
   Container,
   Divider,
+  Avatar,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo-black.png";
-
+import { useSelector } from "react-redux";
 //Data to be collected from backend
 const pages = [
   "Find talent",
@@ -74,7 +75,20 @@ function ResponsiveAppBar() {
   const [anchorElExploreMenu, setAnchorElExploreMenu] = useState(null);
   const [anchorElPremiumMenu, setAnchorElPremiumMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [anchorELAvatar, setAnchorELAvatar] = useState(null);
+  const accessToken = useSelector((state) => state.user.accessToken);
+  const isAuthenticate = !!accessToken;
+
   const navigate = useNavigate();
+  const openAvatar = Boolean(anchorELAvatar);
+
+  const handleAvatar = (e) => {
+    setAnchorELAvatar(e.currentTarget);
+  };
+
+  const handleAvatarClose = () => {
+    setAnchorELAvatar(null);
+  };
 
   const handleSearchInput = (e) => {
     setSearchQuery(e.target.value);
@@ -101,9 +115,9 @@ function ResponsiveAppBar() {
     setAnchorElPremiumMenu(null);
   };
 
-  const handleSubmit =  (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    navigate(`/joblist/?search=${searchQuery}`)
+    navigate(`/joblist/?search=${searchQuery}`);
   };
 
   return (
@@ -161,38 +175,67 @@ function ResponsiveAppBar() {
               justifyContent: "flex-end",
             }}
           >
-            {pages.map((page) => (
+            {pages.map((page) =>
+              page === "Sign in" && isAuthenticate ? null : (
+                <Button
+                  key={page}
+                  onClick={(e) => handleOpenExtraNavMenu(e, page)}
+                  sx={{
+                    my: 2,
+                    mx: 1,
+                    color: "black",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {page}
+                </Button>
+              )
+            )}
+            {isAuthenticate ? null : (
               <Button
-                key={page}
-                onClick={(e) => handleOpenExtraNavMenu(e, page)}
+                component={Link}
+                to="/signup"
+                variant="contained"
                 sx={{
                   my: 2,
                   mx: 1,
-                  color: "black",
+                  color: "white",
+                  backgroundColor: "#2196f3", // Lighter blue color
                   textTransform: "capitalize",
+                  ":hover": {
+                    backgroundColor: "deepskyblue",
+                  },
                 }}
               >
-                {page}
+                Join
               </Button>
-            ))}
-            <Button
-              component={Link}
-              to="/signup"
-              variant="contained"
-              sx={{
-                my: 2,
-                mx: 1,
-                color: "white",
-                backgroundColor: "#2196f3", // Lighter blue color
-                textTransform: "capitalize",
-                ":hover": {
-                  backgroundColor: "deepskyblue",
-                },
+            )}
+          </Box>
+          {isAuthenticate ? (
+            <IconButton color="inherit" onClick={handleAvatar}>
+              <Avatar alt="User Name" src="" />
+            </IconButton>
+          ) : null}
+          <Menu
+            anchorEl={anchorELAvatar}
+            open={openAvatar}
+            onClose={handleAvatarClose}
+          >
+            <MenuItem
+              onClick={() => {
+                navigate("/profile");
               }}
             >
-              Join
-            </Button>
-          </Box>
+              My Profile
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                navigate("/myjobs");
+              }}
+            >
+              My Jobs
+            </MenuItem>
+          </Menu>
         </Toolbar>
         <Divider sx={{ borderBottomWidth: 0.1, borderColor: "lightgray" }} />
         <Toolbar
