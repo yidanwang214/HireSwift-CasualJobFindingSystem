@@ -45,6 +45,7 @@ const MyJobs = () => {
               salaryPerHour: values.salaryPerHour,
               location: values.location,
               contact: values.contact,
+              image: values.image,
             });
             console.log(resp.data);
             setDrawerOpen(false);
