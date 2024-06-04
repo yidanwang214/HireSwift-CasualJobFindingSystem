@@ -56,6 +56,7 @@ const JobDescription = () => {
               console.log("response: " + JSON.stringify(response.data));
               let jobData = {...response.data};
               jobData.ownerRating = parseFloat((Math.random() * 5).toFixed(1));
+              jobData.applicants = new Array(Math.floor(Math.random() * 100)).fill({name: "", age: 0, position: ""});
               setJob(jobData);
             } catch (error) {
               console.error('All jobs fetching err:', error);
@@ -104,7 +105,7 @@ const JobDescription = () => {
                             <span>{category}</span>
                             <span >Posted: {createdAt.substring(0,10)}</span>
                             <span >Status: {status}</span>
-                            <span >Applicants: {parseFloat((Math.random() * 100).toFixed(0))}</span>
+                            <span >Applicants: {applicants.length}</span>
                         </p>
                         
                     </div>
