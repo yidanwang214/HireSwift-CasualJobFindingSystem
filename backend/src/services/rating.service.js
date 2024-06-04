@@ -2,6 +2,7 @@ const httpStatus = require('http-status');
 const RatingModel = require('../models/rating.model');
 const ApiError = require('../utils/ApiError');
 const JobModel = require('../models/job.model');
+const UserModel = require('../models/user.model');
 
 const addNewRating = async (ratingInfo, user) => {
   const { jobId } = ratingInfo;
@@ -14,12 +15,21 @@ const addNewRating = async (ratingInfo, user) => {
   return savedModel._id;
 };
 
+const searchRatings = async (params) => {
+  let ret = await RatingModel.find(params).exec();
+  ret = ret.map((r) => r.toJSON());
+  for (const item of ret) {
+    item.rater = await UserModel.findById(item.raterId);
+  }
+  return ret;
+};
+
 const getAllRatings = async (userId) => {
-  return RatingModel.find({ recipientId: userId }).exec();
+  return searchRatings({ recipientId: userId });
 };
 
 const getRatingsByJobId = async (jobId) => {
-  return RatingModel.find({ jobId }).exec();
+  return searchRatings({ jobId });
 };
 
 const findRatings = async (searchInfo = {}, options = { page: 1, limit: 10 }) => {

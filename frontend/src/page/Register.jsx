@@ -19,6 +19,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/authSlice";
 import { loginFailure, loginSuccess } from "../redux/userSlice";
+import { message } from "antd";
+import client from "../utils/request";
 
 const USER_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -189,50 +191,40 @@ const Register = () => {
     setIsNocheckSbumit(false);
 
     try {
-      const response = await fetch("http://localhost:3000/v1/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, role }),
+      const response = await client.post("/auth/register", {
+        email,
+        password,
+        name,
+        role,
       });
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
-        alert("Sign up successful " + data.user.name);
-        const loginResponse = await fetch(
-          "http://localhost:3000/v1/auth/login",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-          }
-        );
-        const loginData = await loginResponse.json();
-        if (loginResponse.ok) {
-          const { user, tokens } = loginData;
-          const { access, refresh } = tokens;
-          localStorage.setItem("accessToken", access.token);
-          localStorage.setItem("refreshToken", refresh.token);
-          localStorage.setItem("user", JSON.stringify(user));
-          dispatch(loginSuccess(loginData));
-          navigate("/", {replace: true});
-        } else {
-          setErrMsg(loginData.message || "Login failed after registration");
-          dispatch(
-            loginFailure(loginData.message || "Login failed after registration")
-          );
-        }
+      message.success("Sign up successful " + data.user.name);
+      const loginResponse = await client.post("/auth/login", {
+        email,
+        password,
+      });
+      const loginData = loginResponse.data;
+      const { user, tokens } = loginData;
+      const { access, refresh } = tokens;
+      localStorage.setItem("accessToken", access.token);
+      localStorage.setItem("refreshToken", refresh.token);
+      localStorage.setItem("user", JSON.stringify(user));
+      dispatch(loginSuccess(loginData));
+      if (loginData.user.role === "employee") {
+        navigate("/", { replace: true });
       } else {
-        setErrMsg(data.message || "An unexpected error occurred");
-        dispatch(loginFailure(data.message || "An unexpected error occurred"));
+        navigate("/myjobs", { replace: true });
       }
     } catch (e) {
       console.error(e);
+      message.error("failed to register: " + e);
     }
   };
 
   return (
     <Container maxWidth="md">
-      <Paper elevation={6} sx={{ padding: "12px 12px", borderRadius: '12px' }}>
+      <Paper elevation={6} sx={{ padding: "12px 12px", borderRadius: "12px" }}>
         <Typography component="h1" variant="h5" align="center">
           Sign Up
         </Typography>

@@ -26,6 +26,24 @@ const listJob = catchAsync(async (req, res) => {
   res.send(ret);
 });
 
+const searchJob = catchAsync(async (req, res) => {
+  const { query } = req.body;
+  const ret = await findJobs(null, { ...query, status: 'Opening' }, { limit: 999, page: 1 });
+  if (ret && ret.results && ret.results.length > 0) {
+    for (const item of ret.results) {
+      // publisher information
+      item.ownerInfo = await getUserById(item.ownerId);
+      // rating information
+      item.ownerRating = await calcRatingById(item.ownerId);
+      // applications information
+      item.applicants = await getApplicationsByJobId(item.id);
+      item.category = categories.get(item.categoryId ?? 0);
+      item.ratings = await getRatingsByJobId(item.id);
+    }
+  }
+  res.send(ret.results);
+});
+
 const getJobById = catchAsync(async (req, res) => {
   const { jobId } = req.params;
   const job = await findJobById(jobId);
@@ -89,4 +107,5 @@ module.exports = {
   createJob,
   listJob,
   updateJob,
+  searchJob,
 };

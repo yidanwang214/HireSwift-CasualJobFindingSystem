@@ -56,7 +56,7 @@ const jobSearchVad = {
       location: Joi.string().allow('', null),
       updatedStart: Joi.number(),
       updatedEnd: Joi.number(),
-      categoryId: Joi.number(),
+      categoryId: Joi.number().allow(null),
     }),
     page: Joi.number().positive(),
     limit: Joi.number().positive().max(100),
@@ -67,6 +67,7 @@ router.post('/create', auth('manageJobs'), validate(jobCreateVad), JobController
 router.put('/create', auth('manageJobs'), validate(jobCreateVad), JobController.createJob);
 router.post('/update', auth('manageJobs'), validate(jobUpdateVad), JobController.updateJob);
 router.post('/list', auth(), validate(jobSearchVad), JobController.listJob);
+router.post('/search', validate(jobSearchVad), JobController.searchJob);
 
 router.post(
   '/markAsComplete',

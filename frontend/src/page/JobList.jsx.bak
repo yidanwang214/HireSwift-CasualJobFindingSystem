@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Grid,
@@ -16,31 +15,21 @@ import {
   FormGroup,
   Divider,
   Box,
-  RadioGroup,
-  Radio,
-  TextField,
 } from "@mui/material";
 import { FavoriteBorder, Favorite, LocationOn } from "@mui/icons-material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import Rating from "@mui/material/Rating";
 import StarIcon from "@mui/icons-material/Star";
+import { Link, json } from "react-router-dom";
 import { categories } from "../components/JobPublishForm/JobPublish";
-import { Link } from "react-router-dom";
 import client from "../utils/request";
 
 const hourlyWage = [
-  { id: 100, category: "$22 to $24" },
-  { id: 101, category: "$25 to $30" },
-  { id: 102, category: "$31 to $35" },
-  { id: 103, category: "$36+" },
-];
-
-const hourlyWageToParams = [
-  { salaryStart: 22, salaryEnd: 24 },
-  { salaryStart: 25, salaryEnd: 30 },
-  { salaryStart: 31, salaryEnd: 35 },
-  { salaryStart: 36 },
+  { id: 1, category: "$22 to $24" },
+  { id: 2, category: "$25 to $30" },
+  { id: 3, category: "$31 to $35" },
+  { id: 4, category: "$36+" },
 ];
 
 const filterSections = [
@@ -56,131 +45,45 @@ const truncateDescription = (text, wordLimit) => {
   return text;
 };
 
-const handleFavoriteChange = (jobId, checked) => {
-  if (checked) {
-    const fj = localStorage.getItem("favJobs");
-    if (fj) {
-      localStorage.setItem("favJobs", fj + "," + jobId);
-    } else {
-      localStorage.setItem("favJobs", jobId);
-    }
-  } else {
-    const fj = localStorage.getItem("favJobs");
-    if (fj) {
-      const nj = fj
-        .split(",")
-        .filter((s) => s !== jobId)
-        .join(",");
-      localStorage.setItem("favJobs", nj);
-    }
-  }
-};
-
-const checkFavorite = (jobId) => {
-  const fj = localStorage.getItem("favJobs");
-  if (fj) {
-    return fj.split(",").some((f) => f === jobId);
-  }
-  return false;
-};
-
-const getFilterChecked = (id, searchParams) => {
-  if (id >= 100) {
-    if (searchParams.salaryStart) {
-      return (
-        hourlyWageToParams.findIndex(
-          (s) => s.salaryStart === searchParams.salaryStart
-        ) ===
-        id - 100
-      );
-    } else {
-      return false;
-    }
-  } else {
-    return (
-      searchParams.categoryId !== undefined && searchParams.categoryId === id
-    );
-  }
-};
-
-const getFilterDisabled = (id, searchParams) => {
-  if (id >= 100) {
-    if (searchParams.salaryStart) {
-      return (
-        hourlyWageToParams.findIndex(
-          (s) => s.salaryStart === searchParams.salaryStart
-        ) !==
-        id - 100
-      );
-    } else {
-      return false;
-    }
-  } else {
-    return (
-      searchParams.categoryId !== undefined &&
-      searchParams.categoryId !== null &&
-      searchParams.categoryId !== id
-    );
-  }
-};
-
 const JobList = () => {
-  // Create a state that holds the expansion status of each accordion
   const [expanded, setExpanded] = useState([]);
   const [jobs, setJobs] = useState([]);
-  const [searchExpended, setSearchExpended] = useState(true);
-  const [searchParams, setSearchParams] = useState({});
+  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [disabledCheckboxes, setDisabledCheckboxes] = useState({});
 
-  useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    const searchQuery = query.get("search");
-    const categoryID = query.get("categoryId");
-    setSearchParams((prev) => {
-      return {
-        ...prev,
-        search: searchQuery,
-        categoryId: categoryID ? parseInt(categoryID) : undefined,
-      };
-    });
-  }, [location.search]);
-
-  useEffect(() => {
-    client
-      .post("/jobs/search", {
-        query: { ...searchParams },
-      })
-      .then((resp) => {
-        setJobs(resp.data);
-      });
-  }, [searchParams]);
-
-  const handleFilterChange = (id, checked) => {
-    if (checked) {
-      if (id >= 100) {
-        setSearchParams((prev) => ({
-          ...prev,
-          ...hourlyWageToParams[id - 100],
-        }));
-      } else {
-        setSearchParams((prev) => ({ ...prev, categoryId: id }));
-      }
-    } else {
-      if (id >= 100) {
-        setSearchParams((prev) => ({
-          ...prev,
-          salaryStart: undefined,
-          salaryEnd: undefined,
-        }));
-      } else {
-        setSearchParams((prev) => ({ ...prev, categoryId: undefined }));
-      }
-    }
-  };
-
-  // Set all accordion panels to be expanded by default
   useEffect(() => {
     const allSections = filterSections.map((_, index) => index.toString());
     setExpanded(allSections);
+
+    const initializeCheckboxes = () => {
+      let checkboxes = {};
+      filterSections.forEach((section) => {
+        section.data.forEach((item) => {
+          checkboxes[`${section.id}_${item.id}`] = false;
+        });
+      });
+      setDisabledCheckboxes(checkboxes);
+    };
+    initializeCheckboxes();
+
+    // request all jobs from backend
+    const getAllJobs = async () => {
+      try {
+        const response = await client.post("/jobs/list", {
+          query: {},
+          page: 1,
+          limit: 99,
+        });
+        const updatedJobs = response.data.results.map((job) => ({
+          ...job,
+          ownerRating: (Math.random() * 5).toFixed(1),
+        }));
+        setJobs(updatedJobs);
+      } catch (error) {
+        console.error("All jobs fetching err:", error);
+      }
+    };
+    getAllJobs();
   }, []);
 
   const handleAccordionChange = (panel) => {
@@ -195,28 +98,110 @@ const JobList = () => {
 
     setExpanded(newExpanded);
   };
+  const handleFilter = (sectionId, item, target) => {
+    setSelectedFilters((prev) => {
+      let tmpFilters = [...prev];
+      const isFilterSelected = tmpFilters.some(
+        (filter) =>
+          filter.sectionId === sectionId && filter.categoryId === item.id
+      );
+      if (target.checked) {
+        // add the current item to filters
+        if (!isFilterSelected) {
+          tmpFilters.push({ sectionId, categoryId: item.id });
+        }
+        // disable other checkboxes in the same section
+        setDisabledCheckboxes((prevDisabled) => {
+          let newDisabled = { ...prevDisabled };
+          filterSections
+            .find((section) => section.id === sectionId)
+            .data.forEach((filterItem) => {
+              if (filterItem.id !== item.id) {
+                newDisabled[`${sectionId}_${filterItem.id}`] = true;
+              }
+            });
+          return newDisabled;
+        });
+      } else {
+        // unselect a checkbox, remove the current item from filters
+        tmpFilters = tmpFilters.filter(
+          (filter) =>
+            !(filter.sectionId === sectionId && filter.categoryId === item.id)
+        );
+        // enable other checkboxes in the same section
+        setDisabledCheckboxes((prevDisabled) => {
+          let newDisabled = { ...prevDisabled };
+          filterSections
+            .find((section) => section.id === sectionId)
+            .data.forEach((filterItem) => {
+              newDisabled[`${sectionId}_${filterItem.id}`] = false;
+            });
+          return newDisabled;
+        });
+      }
+
+      return tmpFilters;
+    });
+  };
+
+  useEffect(() => {
+    const getFilteredJobs = async () => {
+      let query = {};
+      selectedFilters.forEach((filter) => {
+        if (filter.sectionId === 1) {
+          query.categoryId = filter.categoryId;
+        } else {
+          let salaryStart;
+          let salaryEnd;
+          if (filter.categoryId === 1) {
+            salaryStart = 22;
+            salaryEnd = 24;
+          } else if (filter.categoryId === 2) {
+            salaryStart = 25;
+            salaryEnd = 30;
+          } else if (filter.categoryId === 3) {
+            salaryStart = 31;
+            salaryEnd = 35;
+          } else {
+            salaryStart = 36;
+            salaryEnd = 100;
+          }
+          query.salaryStart = salaryStart;
+          query.salaryEnd = salaryEnd;
+        }
+      });
+      try {
+        const response = await client.post("/jobs/list", {
+          query: query,
+          page: 1,
+          limit: 99,
+        });
+        const updatedJobs = response.data.results.map((job) => ({
+          ...job,
+          ownerRating: (Math.random() * 5).toFixed(1),
+        }));
+        setJobs(updatedJobs);
+      } catch (error) {
+        console.error("All jobs fetching err:", error);
+      }
+    };
+    getFilteredJobs();
+  }, [selectedFilters]);
 
   return (
     <Grid container spacing={2} sx={{ p: 3 }}>
       <Grid item xs={12} md={9}>
-        {jobs.length > 0 ? (
-          <Typography variant="h6" gutterBottom style={{ marginLeft: "1rem" }}>
-            Jobs you might like
-          </Typography>
-        ) : (
-          <Typography variant="h4" gutterBottom style={{ marginLeft: "1rem" }}>
-            Sorry, we did not find what you were looking for.
-          </Typography>
-        )}
-
+        <Typography variant="h6" gutterBottom style={{ marginLeft: "1rem" }}>
+          Jobs you might like
+        </Typography>
         {jobs.map((job, index) => (
           <Box key={index} sx={{ mb: 2, ml: 3, position: "relative" }}>
             <CardContent sx={{ pb: 0 }}>
               <Checkbox
                 icon={<FavoriteBorder />}
                 checkedIcon={<Favorite />}
-                defaultChecked={checkFavorite(job.id)}
-                onChange={(e) => handleFavoriteChange(job.id, e.target.checked)}
+                checked={job.favorited}
+                onChange={() => handleFavoriteChange(index)}
                 sx={{ position: "absolute", top: 16, right: 16 }}
               />
               <div style={{ display: "flex", alignItems: "center" }}>
@@ -252,10 +237,10 @@ const JobList = () => {
                 <Box sx={{ ml: 1, fontSize: "0.875rem" }}>
                   {job.ownerRating}
                 </Box>
+                <LocationOn fontSize="small" />
                 <Typography variant="body2" color="text.secondary">
                   {job.ownerInfo.name}
                 </Typography>
-                <LocationOn fontSize="small" />
                 <Typography variant="body2" color="text.secondary">
                   {job.location}
                 </Typography>
@@ -309,36 +294,6 @@ const JobList = () => {
         <Typography variant="h6" gutterBottom style={{ fontSize: "1rem" }}>
           Filters
         </Typography>
-        <Accordion
-          square
-          elevation={0}
-          expanded={searchExpended}
-          onChange={() => setSearchExpended((prev) => !prev)}
-          sx={{
-            border: "none",
-            boxShadow: "none",
-            "&:before": { display: "none" },
-          }}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography style={{ fontSize: "0.9rem" }}>Search</Typography>
-          </AccordionSummary>
-          <AccordionDetails sx={{ paddingTop: 0, paddingBottom: 0 }}>
-            <TextField
-              label="Search Pattern"
-              variant="standard"
-              fullWidth
-              value={searchParams.search ?? ""}
-              onChange={(e) => {
-                const v = e.target.value;
-                setSearchParams((prev) => ({
-                  ...prev,
-                  search: v ? v : undefined,
-                }));
-              }}
-            />
-          </AccordionDetails>
-        </Accordion>
         {filterSections.map((section, index) => (
           <Accordion
             key={index}
@@ -358,7 +313,7 @@ const JobList = () => {
               </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ paddingTop: 0, paddingBottom: 0 }}>
-              <FormGroup>
+              <FormGroup id={`formGroup-${section.id}`}>
                 {section.data.map((item) => (
                   <FormControlLabel
                     key={item.category}
@@ -368,22 +323,26 @@ const JobList = () => {
                         name={item.category}
                         size="small"
                         onChange={(event) => {
-                          handleFilterChange(item.id, event.target.checked);
+                          handleFilter(section.id, item, event.target);
                         }}
-                        checked={getFilterChecked(item.id, searchParams)}
-                        disabled={getFilterDisabled(item.id, searchParams)}
+                        disabled={
+                          disabledCheckboxes[`${section.id}_${item.id}`] &&
+                          !selectedFilters.some(
+                            (filter) =>
+                              filter.sectionId === section.id &&
+                              filter.categoryId === item.id
+                          )
+                        }
                       />
                     }
                     label={item.category}
                     sx={{
-                      margin: "0px 0", // Reduced vertical margin
+                      margin: "0px 0",
                       "& .MuiTypography-root": {
-                        // Targeting the Typography within FormControlLabel
-                        fontSize: "0.85rem", // Smaller font size
+                        fontSize: "0.85rem",
                       },
                       "& .MuiFormControlLabel-label": {
-                        // Targeting the label directly for compact spacing
-                        margin: "0 2px", // Adjust horizontal spacing if needed
+                        margin: "0 2px",
                       },
                     }}
                   />

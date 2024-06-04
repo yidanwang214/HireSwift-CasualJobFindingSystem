@@ -101,7 +101,6 @@ const Login = () => {
     }
     try {
       const resp = await client.post("/auth/login", { email, password });
-      console.log(resp);
       const { user, tokens } = resp.data;
       const { access, refresh } = tokens;
       localStorage.setItem("accessToken", access.token);
@@ -112,7 +111,11 @@ const Login = () => {
       setPassword("");
       setIsNameTyped(false);
       setIsPwdTyped(false);
-      navigate("/myjobs", { replace: true });
+      if (resp.data.user.role === "employee") {
+        navigate("/", { replace: true });
+      } else {
+        navigate("/myjobs", { replace: true });
+      }
       // } else {
       //   dispatch(loginFailure(data.message || "An unexpected error occurred"));
       // }
@@ -124,7 +127,7 @@ const Login = () => {
 
   return (
     <Container maxWidth="md">
-      <Paper elevation={3} sx={{ padding: "12px 12px", borderRadius: '12px' }}>
+      <Paper elevation={3} sx={{ padding: "12px 12px", borderRadius: "12px" }}>
         <Typography component="h1" variant="h5" align="center">
           Log In
         </Typography>

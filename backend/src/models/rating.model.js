@@ -28,7 +28,7 @@ const ratingModel = mongoose.Schema(
       required: true,
     },
     rate: {
-      type: mongoose.Types.Decimal128,
+      type: Number,
       required: true,
     },
     comment: {

@@ -47,6 +47,7 @@ const escapeRegExp = (str) => {
 const findJobs = async (user, searchInfo = {}, options = { page: 1, limit: 10 }) => {
   const { search, tag, status, salaryStart, salaryEnd, location, updatedStart, updatedEnd, categoryId } = searchInfo;
   const filter = {};
+  console.log(searchInfo);
   if (search) {
     const searchTerm = escapeRegExp(search);
     filter.$or = [
@@ -93,6 +94,7 @@ const findJobs = async (user, searchInfo = {}, options = { page: 1, limit: 10 })
     dateFilter.$lte = new Date(updatedEnd).toISOString();
   }
   Object.assign(filter, dateFilter);
+  console.log(filter);
   const jobList = await JobModel.paginate(filter, options);
   return jobList;
 };

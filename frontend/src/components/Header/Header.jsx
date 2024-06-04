@@ -300,6 +300,7 @@ function ResponsiveAppBar() {
             <MenuItem
               onClick={() => {
                 navigate("/profile");
+                setAnchorELAvatar(null);
               }}
             >
               My Profile
@@ -307,6 +308,7 @@ function ResponsiveAppBar() {
             <MenuItem
               onClick={() => {
                 navigate("/myjobs");
+                setAnchorELAvatar(null);
               }}
             >
               My Jobs
