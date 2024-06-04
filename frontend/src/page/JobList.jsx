@@ -406,9 +406,6 @@ const JobList = () => {
   };
 
   useEffect(() => {
-    console.log('====================================');
-      console.log(categoryID);
-      console.log('====================================');
     if (searchQuery) {
       fetchSearch();
     } else if (categoryID) {
