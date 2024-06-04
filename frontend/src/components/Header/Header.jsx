@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Button, Tooltip, MenuItem, Container, Divider } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { AppBar, Box, Toolbar, Typography, Menu, Button, MenuItem, Container, Divider } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo-black.png';
 
 //Data to be collected from backend
-const pages = [['Find talent', ''], ['Find job', ''], ['Why HireSwift', 'aboutus'], ['Login in', 'login']];
+const pages = [
+    ['Find talent', ''],
+    ['Find job', ''],
+    ['Why HireSwift', 'aboutus'],
+];
 const explore = [
     { title: 'Discover', content: 'Inspiring projects made on our platform' },
     { title: 'Community', content: 'Connect with our team and community' },
@@ -55,6 +59,16 @@ function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElExploreMenu, setAnchorElExploreMenu] = useState(null);
     const [anchorElPremiumMenu, setAnchorElPremiumMenu] = useState(null);
+    const [isLogin, setIsLogin] = useState(!!localStorage.getItem('accessToken'));
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("refreshToken");
+        setIsLogin(false);
+        useNavigate('/login');
+    };
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -111,13 +125,28 @@ function ResponsiveAppBar() {
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end' }}>
                         {pages.map((page) => (
                             <Button
-                                key={page[0]}
-                                onClick={(e) => handleOpenExtraNavMenu(e, page[0])}
-                                sx={{ my: 2, mx: 1, color: 'black', textTransform: 'capitalize' }}
+                            key={page[0]}
+                            onClick={(e) => handleOpenExtraNavMenu(e, page[0])}
+                            sx={{ my: 2, mx: 1, color: 'black', textTransform: 'capitalize' }}
                             >
-                                <Link to={`/${page[1]}`}>{page[0]}</Link>
+                            <Link to={`/${page[1]}`}>{page[0]}</Link>
                             </Button>
                         ))}
+                        {isLogin ? (
+                            <Button
+                            onClick={handleLogout}
+                            sx={{ my: 2, mx: 1, color: 'black', textTransform: 'capitalize' }}
+                            >
+                            Logout
+                            </Button>
+                        ) : (
+                            <Button
+                            onClick={() => navigate('/login')}
+                            sx={{ my: 2, mx: 1, color: 'black', textTransform: 'capitalize' }}
+                            >
+                            <Link to="/login">Login</Link>
+                            </Button>
+                        )}
                         <Button
                             component={Link}
                             to="/signup"
