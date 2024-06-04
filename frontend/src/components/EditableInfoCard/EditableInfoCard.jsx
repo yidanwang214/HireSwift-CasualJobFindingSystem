@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const EditableInfoCard = ({ title, value, onSave, children }) => {
+const EditableInfoCard = ({
+  title,
+  value,
+  onSave,
+  children,
+  onUpdate,
+  readonly,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
 
   const handleSave = () => {
-    onSave(editValue);
+    onSave?.();
     setIsEditing(false);
   };
 
@@ -15,22 +21,35 @@ const EditableInfoCard = ({ title, value, onSave, children }) => {
       {isEditing ? (
         <div>
           {children ? (
-            React.cloneElement(children, { value: editValue, onChange: (e) => setEditValue(e.target.value) })
+            React.cloneElement(children, {
+              value: value,
+              onChange: (e) => {
+                console.log("onchange!", e);
+              },
+            })
           ) : (
             <input
               type="text"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
+              value={value}
+              onChange={(e) => onUpdate?.(e.target.value)}
               className="border p-2 rounded w-full mt-2"
             />
           )}
-          <button onClick={handleSave} className="btn-primary mt-2">Save</button>
-          <button onClick={() => setIsEditing(false)} className="btn-secondary mt-2 ml-2">Cancel</button>
+          <button onClick={handleSave} className="btn-primary mt-2">
+            Save
+          </button>
+          <button
+            onClick={() => setIsEditing(false)}
+            className="btn-secondary mt-2 ml-2"
+          >
+            Cancel
+          </button>
         </div>
       ) : (
         <div>
           <p className="mt-2">{value}</p>
           <button
+            style={{ display: readonly ? "none" : "block" }}
             onClick={() => setIsEditing(true)}
             className="btn-edit absolute top-4 right-4"
           >
