@@ -308,11 +308,15 @@ const JobList = () => {
   const [expanded, setExpanded] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
 
-  const useQuery = () => {
+  const useQeury = () => {
     return new URLSearchParams(useLocation().search);
   };
-  const queryParams = useQuery();
+
+  const queryParams = useQeury();
   const searchQuery = queryParams.get("search");
+  const categoryPrams = useQeury();
+  const categoryID = categoryPrams.get("categoryId");
+
 
   const findKeyword = (targets, keywords) => {
     if (typeof targets === "string") {
@@ -343,13 +347,12 @@ const JobList = () => {
     });
   };
 
-  const fetchData = async () => {
+  const fetchSearch = async () => {
     if (searchQuery) {
       try {
         const response = await client.post("/jobs/list", {
           query: {
             search: searchQuery,
-            //categoryId: to be handled,
           },
           page: 1,
           limit: 99,
@@ -373,9 +376,45 @@ const JobList = () => {
     }
   };
 
+  const fetchCategoryId = async () => {
+    if (categoryID) {
+      try {
+        const response = await client.post("/jobs/list", {
+          query: {
+            categoryId: categoryID,
+          },
+          page: 1,
+          limit: 99,
+        });
+        console.log(response.data.results);
+        setFilteredJobs(response.data.results);
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      try {
+        const response = await client.post("/jobs/list", {
+          page: 1,
+          limit: 99,
+        });
+
+        setFilteredJobs(response.data.results);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
+
   useEffect(() => {
-    fetchData();
-  }, [searchQuery]);
+    console.log('====================================');
+      console.log(categoryID);
+      console.log('====================================');
+    if (searchQuery) {
+      fetchSearch();
+    } else if (categoryID) {
+      fetchCategoryId();
+    }
+  }, [searchQuery, categoryID]);
 
   /*
   useEffect(() => {

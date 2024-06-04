@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Box,
@@ -7,7 +7,6 @@ import {
   Typography,
   Menu,
   Button,
-  Tooltip,
   MenuItem,
   Container,
   Divider,
@@ -27,6 +26,73 @@ const pages = [
   "Enterprise",
   "Sign in",
 ];
+
+const categorizedList = [
+  {
+    category: "Business",
+    subcategories: [
+      { subcategory: "Accounting", id: 1 },
+      { subcategory: "Banking & Financial Services", id: 4 },
+      { subcategory: "Human Resources & Recruitment", id: 17 },
+    ],
+  },
+  {
+    category: "Creative Media",
+    subcategories: [
+      { subcategory: "Advertising, Arts & Media", id: 3 },
+      { subcategory: "Design & Architecture", id: 10 },
+    ],
+  },
+  {
+    category: "Education Training",
+    subcategories: [{ subcategory: "Education & Training", id: 11 }],
+  },
+  {
+    category: "Trades",
+    subcategories: [
+      { subcategory: "Construction", id: 8 },
+      { subcategory: "Engineering", id: 12 },
+      { subcategory: "Trades & Services", id: 30 },
+    ],
+  },
+  {
+    category: "Hospitality Tourism",
+    subcategories: [
+      { subcategory: "Hospitality & Tourism", id: 16 },
+      { subcategory: "Sport & Recreation", id: 29 },
+    ],
+  },
+  {
+    category: "Healthcare",
+    subcategories: [{ subcategory: "Healthcare & Medical", id: 15 }],
+  },
+  {
+    category: "Technology",
+    subcategories: [{ subcategory: "Science & Technology", id: 27 }],
+  },
+  {
+    category: "Public Social Services",
+    subcategories: [
+      { subcategory: "Community Services & Development", id: 7 },
+      { subcategory: "Government & Defence", id: 14 },
+    ],
+  },
+  {
+    category: "Resources Energy",
+    subcategories: [
+      { subcategory: "Farming, Animals & Conservation", id: 13 },
+      { subcategory: "Mining, Resources & Energy", id: 23 },
+    ],
+  },
+  {
+    category: "Others",
+    subcategories: [
+      { subcategory: "Self Employment", id: 28 },
+      { subcategory: "Others", id: 0 },
+    ],
+  },
+];
+
 const explore = [
   { title: "Discover", content: "Inspiring projects made on our platform" },
   { title: "Community", content: "Connect with our team and community" },
@@ -76,11 +142,16 @@ function ResponsiveAppBar() {
   const [anchorElPremiumMenu, setAnchorElPremiumMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [anchorELAvatar, setAnchorELAvatar] = useState(null);
+  const [clickedCategory, setClikedCategory] = useState(null);
   const accessToken = useSelector((state) => state.user.accessToken);
   const isAuthenticate = !!accessToken;
 
   const navigate = useNavigate();
   const openAvatar = Boolean(anchorELAvatar);
+
+  const handleCategoryID = (e) => {
+    console.log(e.target);
+  };
 
   const handleAvatar = (e) => {
     setAnchorELAvatar(e.currentTarget);
@@ -104,15 +175,11 @@ function ResponsiveAppBar() {
     } else if (page === "Get Premium") {
       setAnchorElPremiumMenu(event.currentTarget);
     }
+    setClikedCategory(event.currentTarget.firstChild.textContent);
   };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
-  };
-
-  const handleCloseExtraNavMenu = () => {
-    setAnchorElExploreMenu(null);
-    setAnchorElPremiumMenu(null);
   };
 
   const handleSubmit = (e) => {
@@ -243,21 +310,26 @@ function ResponsiveAppBar() {
           sx={{ justifyContent: "flex-start", minHeight: "40px", mt: -1 }}
         >
           <Box
-            sx={{ width: "70%", display: "flex", justifyContent: "flex-start" }}
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "flex-start",
+            }}
           >
-            {explore.map((item) => (
+            {categorizedList.map((key) => (
               <Button
-                key={item.title}
+                key={key.category}
                 onClick={(e) => handleOpenExtraNavMenu(e, "Explore")}
                 sx={{
                   my: 2,
                   mx: 1,
                   color: "black",
                   textTransform: "capitalize",
+                  fontWeight: 700,
                 }}
                 aria-haspopup="true"
               >
-                {item.title}
+                {key.category}
               </Button>
             ))}
           </Box>
@@ -268,18 +340,31 @@ function ResponsiveAppBar() {
             anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
             keepMounted
             transformOrigin={{ vertical: "top", horizontal: "left" }}
-            onClose={handleCloseExtraNavMenu}
+            onClose={() => {
+              setAnchorElExploreMenu(null);
+              setAnchorElPremiumMenu(null);
+            }}
           >
-            {explore.map((item) => (
-              <MenuItem key={item.title} onClick={handleCloseExtraNavMenu}>
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  <Typography variant="body1" fontWeight={700}>
-                    {item.title}
-                  </Typography>
-                  <Typography variant="body2">{item.content}</Typography>
-                </Box>
-              </MenuItem>
-            ))}
+            {clickedCategory &&
+              categorizedList
+                .find((category) => category.category === clickedCategory)
+                ?.subcategories.map((subcategory) => (
+                  <MenuItem
+                    key={subcategory.subcategory}
+                    onClick={() => {
+
+                      setAnchorElExploreMenu(null);
+                      setAnchorElPremiumMenu(null);
+                      navigate(`/joblist/?categoryId=${subcategory.id}`)
+                    }}
+                  >
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      <Typography variant="body2">
+                        {subcategory.subcategory}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
           </Menu>
         </Toolbar>
       </Container>
