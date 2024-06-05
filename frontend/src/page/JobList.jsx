@@ -28,6 +28,7 @@ import StarIcon from "@mui/icons-material/Star";
 import { categories } from "../components/JobPublishForm/JobPublish";
 import { Link } from "react-router-dom";
 import client from "../utils/request";
+import axios from "axios";
 
 const hourlyWage = [
   { id: 100, category: "$22 to $24" },
@@ -130,6 +131,7 @@ const JobList = () => {
   const [jobs, setJobs] = useState([]);
   const [searchExpended, setSearchExpended] = useState(true);
   const [searchParams, setSearchParams] = useState({});
+  const location = useLocation();
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
@@ -145,13 +147,27 @@ const JobList = () => {
   }, [location.search]);
 
   useEffect(() => {
+    const ac = new AbortController();
     client
-      .post("/jobs/search", {
-        query: { ...searchParams },
-      })
+      .post(
+        "/jobs/search",
+        {
+          query: { ...searchParams },
+        },
+        { signal: ac.signal }
+      )
       .then((resp) => {
         setJobs(resp.data);
+      })
+      .catch((e) => {
+        if (axios.isCancel(e)) {
+          return;
+        }
+        console.error(e);
       });
+    return () => {
+      ac.abort();
+    };
   }, [searchParams]);
 
   const handleFilterChange = (id, checked) => {
