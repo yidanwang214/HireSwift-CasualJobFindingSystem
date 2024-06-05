@@ -80,12 +80,15 @@ const JobDescription = () => {
   const [refreshToken, setRefreshToken] = useState(1.0);
 
   useEffect(() => {
+    if (!job || !job.ownerId) {
+      return;
+    }
     client
-      .get("/rating/getAllRatingsByJobId", { params: { jobId: jobId } })
+      .get("/rating/getAllRatings", { params: { userId: job.ownerId } })
       .then((resp) => {
         setEmployerRatings(resp.data);
       });
-  }, [jobId]);
+  }, [job]);
 
   useEffect(() => {
     const getJob = async () => {
@@ -169,15 +172,16 @@ const JobDescription = () => {
               <div className="flex flex-row">
                 <Rating
                   name="half-rating-read"
+                  style={{ marginRight: "16px" }}
                   value={job?.ownerRating}
                   precision={0.5}
                   readOnly
                 />
-                {job?.ownerRating}
+                {job?.ownerRating?.toFixed(1)}
               </div>
             </div>
             <div id="wage">
-              <span>Hourly wage: </span>
+              <span>Hourly rate: </span>
               {`${job?.salaryStart} - ${job?.salaryEnd} AUD/hour`}
             </div>
             <div id="location" className="flex flex-row justify-between">
@@ -232,7 +236,7 @@ const JobDescription = () => {
                 id={item.id}
                 key={item.id}
                 className="border-b border-b-zinc-300 mt-2"
-                style={{paddingBottom: '16px'}}
+                style={{ paddingBottom: "16px" }}
               >
                 Rating:
                 <Rate
