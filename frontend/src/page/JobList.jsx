@@ -46,7 +46,7 @@ const hourlyWageToParams = [
 
 const filterSections = [
   { id: 1, title: "Job Type", data: categories },
-  { id: 2, title: "Hourly wage", data: hourlyWage },
+  { id: 2, title: "Hourly rate", data: hourlyWage },
 ];
 
 const truncateDescription = (text, wordLimit) => {
@@ -291,7 +291,7 @@ const JobList = () => {
                   color="text.secondary"
                   sx={{ ml: 2 }}
                 >
-                  Hourly wage: {`${job.salaryStart} - ${job.salaryEnd}`}
+                  Hourly rate: {`${job.salaryStart} - ${job.salaryEnd}`}
                 </Typography>
               </Stack>
               <Typography variant="body2" sx={{ mt: 2 }}>
