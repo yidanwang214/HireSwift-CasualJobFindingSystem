@@ -9,6 +9,7 @@ import client from "../utils/request";
 const MyJobs = () => {
   const user = useSelector((state) => state.user.userInfo);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [randomSeed, setRandomSeed] = useState(1.0);
   return (
     <>
       <ProfileHeader
@@ -17,7 +18,7 @@ const MyJobs = () => {
           setDrawerOpen(true);
         }}
       />
-      <JobTable />
+      <JobTable randomSeed={randomSeed} />
       <Drawer
         anchor="right"
         open={drawerOpen}
@@ -49,6 +50,7 @@ const MyJobs = () => {
             });
             console.log(resp.data);
             setDrawerOpen(false);
+            setRandomSeed(Math.random());
           }}
         />
       </Drawer>

@@ -1,7 +1,5 @@
 import React, {
-  useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -66,7 +64,7 @@ categories.forEach((c) => {
   catMap[c.id] = { text: c.category };
 });
 
-const JobTable = () => {
+const JobTable = ({ randomSeed }) => {
   const userInfo = useSelector((state) => state.user.userInfo);
   const [currentJobId, setCurrentJobId] = useState();
   const [isModalOpen, setModalOpen] = useState(false);
@@ -75,6 +73,10 @@ const JobTable = () => {
   const [isRateModalOpen, setRateModalOpen] = useState(false);
   const [ratingForm] = Form.useForm();
   const tableRef = useRef();
+
+  useEffect(() => {
+    tableRef.current?.reload();
+  }, [randomSeed]);
 
   useEffect(() => {
     if (!isModalOpen || !currentJobId) {
@@ -317,8 +319,13 @@ const JobTable = () => {
                     );
                   } else if (ent.status === "Finished") {
                     if (
-                      !ent.ratings ||
-                      ent.ratings.every((r) => r.raterId !== userInfo.id)
+                      ent.applicants.some(
+                        (s) =>
+                          s.employeeId === userInfo.id &&
+                          s.status === "Accepted"
+                      ) &&
+                      (!ent.ratings ||
+                        ent.ratings.every((r) => r.raterId !== userInfo.id))
                     ) {
                       ret.push(
                         <Button
