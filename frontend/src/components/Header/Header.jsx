@@ -167,6 +167,9 @@ function ResponsiveAppBar() {
     } else if (page === "Get Premium") {
       setAnchorElPremiumMenu(event.currentTarget);
     }
+    if (page === 'Find job') {
+      navigate("/joblist");
+    }
     setClikedCategory(event.currentTarget.firstChild.textContent);
   };
 
