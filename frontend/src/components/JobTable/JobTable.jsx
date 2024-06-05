@@ -1,8 +1,4 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import "./JobTable.css";
@@ -318,27 +314,53 @@ const JobTable = ({ randomSeed }) => {
                       </Button>
                     );
                   } else if (ent.status === "Finished") {
-                    if (
-                      ent.applicants.some(
-                        (s) =>
-                          s.employeeId === userInfo.id &&
-                          s.status === "Accepted"
-                      ) &&
-                      (!ent.ratings ||
-                        ent.ratings.every((r) => r.raterId !== userInfo.id))
-                    ) {
-                      ret.push(
-                        <Button
-                          key="rate"
-                          type="link"
-                          onClick={() => {
-                            setCurrentJobId(ent.id);
-                            setRateModalOpen(true);
-                          }}
-                        >
-                          Rate
-                        </Button>
-                      );
+                    if (userInfo.role === "employer") {
+                      if (
+                        !ent.ratings ||
+                        ent.ratings.every((r) => r.rater.id !== userInfo.id)
+                      ) {
+                        // add
+                        ret.push(
+                          <Button
+                            key="rate"
+                            type="link"
+                            onClick={() => {
+                              setCurrentJobId(ent.id);
+                              setRateModalOpen(true);
+                            }}
+                          >
+                            Rate
+                          </Button>
+                        );
+                      }
+                    } else {
+                      // employee
+                      if (
+                        ent.applicants.some(
+                          (s) =>
+                            s.employeeId === userInfo.id &&
+                            s.status === "Accepted"
+                        )
+                      ) {
+                        // the employee is the correct one
+                        if (
+                          !ent.ratings ||
+                          ent.ratings.every((r) => r.raterId !== userInfo.id)
+                        ) {
+                          ret.push(
+                            <Button
+                              key="rate"
+                              type="link"
+                              onClick={() => {
+                                setCurrentJobId(ent.id);
+                                setRateModalOpen(true);
+                              }}
+                            >
+                              Rate
+                            </Button>
+                          );
+                        }
+                      }
                     }
                   }
 
