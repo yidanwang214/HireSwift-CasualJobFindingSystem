@@ -250,7 +250,7 @@ const JobList = () => {
                   }
                 />
                 <Box sx={{ ml: 1, fontSize: "0.875rem" }}>
-                  {job.ownerRating}
+                  {job.ownerRating?.toFixed(1)}
                 </Box>
                 <Typography variant="body2" color="text.secondary">
                   {job.ownerInfo.name}
