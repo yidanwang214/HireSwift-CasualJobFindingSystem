@@ -13,6 +13,9 @@ HireSwift is an innovative platform designed to connect employers with a talente
 - Responsive design for an adaptable user experience across devices.
 - Advanced matching algorithm to connect talent with opportunities.
 
+<img width="1439" alt="image" src="https://media.github.cs.adelaide.edu.au/user/3868/files/c2901a69-9434-4559-8c9f-f0f6de4c15da">
+<img width="1438" alt="image" src="https://media.github.cs.adelaide.edu.au/user/3868/files/3bf69287-2cc6-4db2-873e-ccb7834cbf48">
+
 ---
 
 # Development Setup
